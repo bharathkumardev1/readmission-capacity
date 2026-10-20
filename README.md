@@ -137,6 +137,12 @@ service, on a small synthetic frame. CI also downloads the data from UCI, checks
 the pinned hash, retrains, fails if the headline numbers move, re-runs the JS tests on the
 fresh model and its results, and smoke-tests the Docker image.
 
+```bash
+pytest                                        # seconds, no download
+readmit run                                   # writes artifacts/ and results/
+readmit export --out web/data && (cd web && npm test)   # browser scorer and curves vs that run
+```
+
 ## What's still rough
 
 - No external validation. One extract, one period, one random split by patient.
