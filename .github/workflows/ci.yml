@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: ruff check src tests
+      - run: pytest -q
+
+  reproduce:
+    # Downloads the dataset from UCI itself (checked against the pinned SHA-256), retrains,
+    # and fails if the headline numbers move. Then checks the browser scorer against the
+    # freshly trained model.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: pip install -r requirements.lock && pip install --no-deps -e .
+      - run: readmit run --out ci-results
+      - name: Headline numbers match the committed results
+        run: |
+          python - <<'EOF'
+          import json
+          new = json.load(open("ci-results/metrics.json"))["test"]["LightGBM"]
+          old = json.load(open("results/metrics.json"))["test"]["LightGBM"]
+          for k in ("auroc", "auprc", "brier"):
+              assert abs(new[k] - old[k]) < 0.002, (k, new[k], old[k])
+          assert abs(new["top10"]["recall"] - old["top10"]["recall"]) < 0.005
+          print("reproduced:", {k: round(new[k], 4) for k in ("auroc", "auprc", "brier")})
+          EOF
+      - run: readmit export --results ci-results --out web/ci-data
+      - run: READMIT_WEB_DATA=ci-data npm test
+        working-directory: web
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Train a small model on synthetic data for the smoke test
+        run: python scripts/smoke_model.py /tmp/models
+      - run: docker build -t readmit .
+      - name: Smoke test
+        run: |
+          chmod -R a+rX /tmp/models
+          docker run -d --name readmit -p 8000:8000 -v /tmp/models:/models:ro readmit
+          for i in $(seq 1 30); do curl -fs localhost:8000/healthz && break; sleep 1; done
+          curl -fs -X POST localhost:8000/score -H 'content-type: application/json' \
+            -d '{"encounters":[{"age":"[70-80)","time_in_hospital":9,"number_inpatient":4}]}'
+          docker logs readmit

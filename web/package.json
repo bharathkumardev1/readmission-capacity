@@ -1,0 +1,8 @@
+{
+  "name": "readmit-web",
+  "private": true,
+  "type": "module",
+  "description": "LightGBM tree scoring and capacity curves in the browser, tested against Python",
+  "scripts": { "test": "node --test test/*.test.mjs" },
+  "engines": { "node": ">=20" }
+}

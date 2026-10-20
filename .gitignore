@@ -1,0 +1,8 @@
+data/
+artifacts/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+node_modules/
+results/test_scores.npz
