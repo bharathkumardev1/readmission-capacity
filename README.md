@@ -7,7 +7,8 @@ of them? On the UCI extract of 101,766 inpatient encounters from 130 US hospital
 calling at random would. Ranking by prior inpatient visits, the usual rule of thumb, reaches
 20.5%; a LACE score reaches 15.8%. The model's probabilities are calibrated (Brier 0.097),
 and the evaluation shows where the list goes blind: 41% of readmissions are patients with
-no hospital visit in the prior year, and the list reaches only 12% of them.
+no inpatient, emergency or outpatient visit in the prior year, and the list reaches only
+12% of them.
 
 I built readmission models at work on data I can't share. This is the same problem on
 public data, set up so every number below can be checked.
