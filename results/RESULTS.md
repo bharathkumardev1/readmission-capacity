@@ -1,6 +1,6 @@
 # Results
 
-`readmit run` at commit `7dea816` on 2026-10-20: Python 3.13.16, LightGBM 4.7.0, scikit-learn 1.9.1. 101,766 encounters, 2,423 dropped for death or hospice discharge. Test split: 19,745 encounters from 13,908 patients, 11.5% readmitted within 30 days. Intervals: 2,000 bootstrap resamples over patients.
+`readmit run` at commit `b48e6d5` on 2026-10-20: Python 3.13.16, LightGBM 4.7.0, scikit-learn 1.9.1. 101,766 encounters, 2,423 dropped for death or hospice discharge. Test split: 19,745 encounters from 13,908 patients, 11.5% readmitted within 30 days. Intervals: 2,000 bootstrap resamples over patients.
 
 ## Test split
 
@@ -65,7 +65,7 @@
 
 ## Who the call list misses
 
-Of 2,279 test readmissions, the 10% call list reaches 568. 41% of all readmissions had no inpatient, emergency or outpatient visit in the prior year; the list reaches 109 of them, and they are 834 of the 1,711 misses.
+Of 2,279 test readmissions, the 10% call list (1,974 encounters) reaches 568; the calibrated probabilities predicted 547. 41% of all readmissions had no inpatient, emergency or outpatient visit in the prior year; the list reaches 109 of them, and they are 834 of the 1,711 misses.
 
 ## Stability (PSI, train vs test)
 
@@ -86,5 +86,5 @@ Of 2,279 test readmissions, the 10% call list reaches 568. 41% of all readmissio
 | keep death and hospice discharges | 0.680 | 0.248 | 20,225 |
 | class-weighted training (is_unbalance) | 0.671 | 0.242 | 19,745 |
 
-LightGBM: 188 trees (early stopping on validation AUC), fit in 4.3 s on one thread.
+LightGBM: 188 trees (early stopping on validation AUC), fit in 3.9 s on one thread.
 

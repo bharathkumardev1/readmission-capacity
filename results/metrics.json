@@ -1,6 +1,6 @@
 {
  "meta": {
-  "git_sha": "7dea816",
+  "git_sha": "b48e6d5",
   "date": "2026-10-20",
   "python": "3.13.16",
   "lightgbm": "4.7.0",
@@ -28,9 +28,9 @@
    }
   },
   "lightgbm_trees": 188,
-  "logistic_fit_s": 1.1735586270001477,
-  "lightgbm_fit_s": 4.3047295669998675,
-  "seconds": 9.803956835999998
+  "logistic_fit_s": 0.9781664239999373,
+  "lightgbm_fit_s": 3.8921123250001983,
+  "seconds": 8.313383782000074
  },
  "test": {
   "prior inpatient visits": {
@@ -508,7 +508,9 @@
  },
  "misses_at_10": {
   "readmissions": 2279,
+  "flagged": 1974,
   "caught_at_10": 568,
+  "expected_on_list": 546.875241235276,
   "missed_with_no_prior_visits": 834,
   "missed_total": 1711,
   "caught_with_no_prior_visits": 109,

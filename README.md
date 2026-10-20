@@ -53,7 +53,7 @@ here is the gap between models at a fixed capacity, which is what a care team sp
 | Split by patient | 16,773 patients have more than one encounter. A random split by encounter puts the same person in train and test. | On this data it didn't inflate anything (0.671 AUROC, 0.231 recall at 10%). I'd still never ship the leaky version; the check is cheap and being wrong is expensive. |
 | Drop death and hospice discharges (2,423 encounters) | These patients can't be readmitted. Keeping them teaches the model that "discharged to hospice" means low risk. | AUROC 0.680 instead of 0.674, a gain that comes entirely from patients nobody would call. |
 | Score at a fixed outreach capacity | A care team has a call budget, not a threshold. Recall at K% is the number that maps to patients reached. | |
-| Calibrate on the validation split (isotonic) | Planning needs probabilities, not ranks: "this list will reach about 570 of 2,280 readmissions". | Nothing here: raw LightGBM probabilities were already calibrated (Brier 0.0969 raw, 0.0970 after). It stays as a guard for retrained models. |
+| Calibrate on the validation split (isotonic) | Planning needs probabilities, not ranks. On the test set the calibrated probabilities said the 10% list (1,974 encounters) would reach 547 readmissions; it reached 568. | Nothing here: raw LightGBM probabilities were already calibrated (Brier 0.0969 raw, 0.0970 after). It stays as a guard for retrained models. |
 | Early stopping on validation AUC, plain hyperparameters | 188 trees. I didn't tune much; the comparison to logistic regression is the point. | |
 
 Things I tried or considered and didn't keep:
@@ -107,11 +107,12 @@ distribution, alert at 0.2, and track recall at capacity once 30-day outcomes ar
 ## Browser demo
 
 [`web/gbdt.mjs`](web/gbdt.mjs) scores the LightGBM trees in the browser, following
-LightGBM's own decision rules for missing and categorical values, and turns each model's
-test ranking into a capacity curve from 2.5 KB of packed labels. The test in
-[`web/test`](web/test) checks it against `booster.predict` on 2,000 test rows (largest
-difference under 1e-9). The demo runs on
-[bharathkumardev1.github.io](https://bharathkumardev1.github.io).
+LightGBM's own decision rules for missing and categorical values, and turns each ranking's
+test order into a capacity curve from 2.5 KB of packed labels. The tests in
+[`web/test`](web/test) check the scores against `booster.predict` on 2,000 test rows
+(largest difference under 1e-9) and the curves against the flagged counts, recall and
+precision in `metrics.json`. The demo runs on
+[bharathkumardev1.github.io](https://bharathkumardev1.github.io#readmission).
 
 ## Layout
 
@@ -133,8 +134,8 @@ web/             JS scorer and its parity test
 `pytest` covers the exclusions, the patient split, ICD-9 grouping, Charlson and LACE
 points, the capacity metrics, the patient-level bootstrap, PSI, model save/load, and the
 service, on a small synthetic frame. CI also downloads the data from UCI, checks it against
-the pinned hash, retrains, fails if the headline numbers move, re-runs the JS parity test
-on the fresh model, and smoke-tests the Docker image.
+the pinned hash, retrains, fails if the headline numbers move, re-runs the JS tests on the
+fresh model and its results, and smoke-tests the Docker image.
 
 ## What's still rough
 
