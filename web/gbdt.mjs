@@ -64,13 +64,20 @@ export function calibrate(table, score) {
   return y[lo] + t * (y[hi] - y[lo]);
 }
 
+// Python's round(): halves go to the even neighbor. 10% of 19,745 is 1974.5, which Python
+// rounds to 1974 and Math.round to 1975.
+export function roundHalfEven(x) {
+  const r = Math.round(x);
+  return Math.abs(x - Math.trunc(x)) === 0.5 && r % 2 !== 0 ? r - 1 : r;
+}
+
 // Readmissions reached when calling the top `share` of discharges, from labels packed in score order.
 export function capacityCurve(packed, n) {
   const bytes = Uint8Array.from(atob(packed), (c) => c.charCodeAt(0));
   const cum = new Uint32Array(n + 1);
   for (let i = 0; i < n; i++) cum[i + 1] = cum[i] + ((bytes[i >> 3] >> (7 - (i & 7))) & 1);
   return (share) => {
-    const k = Math.max(1, Math.round(share * n));
+    const k = Math.min(n, Math.max(1, roundHalfEven(share * n)));
     return { flagged: k, caught: cum[k], positives: cum[n] };
   };
 }

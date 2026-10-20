@@ -12,8 +12,8 @@ jobs:
       matrix:
         python-version: ["3.11", "3.13"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -27,12 +27,12 @@ jobs:
     # freshly trained model.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
       - run: pip install -r requirements.lock && pip install --no-deps -e .
@@ -49,14 +49,14 @@ jobs:
           print("reproduced:", {k: round(new[k], 4) for k in ("auroc", "auprc", "brier")})
           EOF
       - run: readmit export --results ci-results --out web/ci-data
-      - run: READMIT_WEB_DATA=ci-data npm test
+      - run: READMIT_WEB_DATA=ci-data READMIT_RESULTS=../ci-results npm test
         working-directory: web
 
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip

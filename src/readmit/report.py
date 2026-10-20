@@ -58,7 +58,9 @@ def write_markdown(r: dict, path: Path) -> None:
     lines += [
         "",
         "## Who the call list misses\n",
-        f"Of {mi['readmissions']:,} test readmissions, the 10% call list reaches {mi['caught_at_10']:,}. "
+        f"Of {mi['readmissions']:,} test readmissions, the 10% call list ({mi['flagged']:,} encounters) "
+        f"reaches {mi['caught_at_10']:,}; the calibrated probabilities predicted "
+        f"{mi['expected_on_list']:.0f}. "
         f"{mi['share_of_all_readmissions_with_no_prior_visits']:.0%} of all readmissions had no "
         f"inpatient, emergency or outpatient visit in the prior year; the list reaches "
         f"{mi['caught_with_no_prior_visits']:,} of them, and they are "

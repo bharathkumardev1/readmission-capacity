@@ -52,9 +52,14 @@ def export(
     gb = GBDT.load(model_dir)
     z = np.load(Path(results_dir) / "test_scores.npz")
     y = z["y"]
+    if len(test) != len(y) or not (test["y"].to_numpy() == y).all():
+        raise ValueError("test split doesn't line up with results/test_scores.npz; rerun readmit run")
+    # Same order and tie-breaking as evaluate.at_capacity, and the same names as
+    # metrics.json, so web/test can check the browser's curves against the Python numbers.
     ranked = {
         "LightGBM": pack_ranked_labels(y, z["lightgbm"]),
         "logistic regression": pack_ranked_labels(y, z["logistic"]),
+        "prior inpatient visits": pack_ranked_labels(y, test["number_inpatient"].to_numpy(dtype=float)),
         "LACE": pack_ranked_labels(y, z["lace"]),
     }
     dump = gb.booster.dump_model(num_iteration=gb.booster.best_iteration)

@@ -151,7 +151,10 @@ def run(data_dir: Path, out_dir: Path, model_dir: Path) -> dict:
     ).to_numpy()
     misses = {
         "readmissions": int(pos.sum()),
+        "flagged": int(k),
         "caught_at_10": int((pos & flagged).sum()),
+        # What the calibrated probabilities said the list would reach, before looking at outcomes.
+        "expected_on_list": float(gb_prob[flagged].sum()),
         "missed_with_no_prior_visits": int((pos & ~flagged & no_history).sum()),
         "missed_total": int((pos & ~flagged).sum()),
         "caught_with_no_prior_visits": int((pos & flagged & no_history).sum()),

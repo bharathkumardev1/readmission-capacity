@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { makeScorer, calibrate, capacityCurve } from "../gbdt.mjs";
+import { makeScorer, calibrate, capacityCurve, roundHalfEven } from "../gbdt.mjs";
 
 const dir = process.env.READMIT_WEB_DATA || "data";
 const read = (f) => JSON.parse(readFileSync(join(dir, f), "utf8"));
@@ -36,4 +36,25 @@ test("capacity curve agrees with the totals", () => {
     assert.equal(at(1).caught, cap.positives);
     assert.ok(at(0.1).caught <= at(0.2).caught);
   }
+});
+
+test("capacity curves reproduce recall and precision in metrics.json", () => {
+  const cap = read("capacity.json");
+  const results = process.env.READMIT_RESULTS || "../results";
+  const metrics = JSON.parse(readFileSync(join(results, "metrics.json"), "utf8")).test;
+  assert.equal(Object.keys(cap.ranked_labels).length, 4);
+  for (const [name, packed] of Object.entries(cap.ranked_labels)) {
+    const at = capacityCurve(packed, cap.n);
+    for (const pct of [5, 10, 20]) {
+      const want = metrics[name][`top${pct}`];
+      const got = at(pct / 100);
+      assert.equal(got.flagged, want.flagged, `${name} at ${pct}%`);
+      assert.ok(Math.abs(got.caught / got.positives - want.recall) < 1e-12, `${name} recall at ${pct}%`);
+      assert.ok(Math.abs(got.caught / got.flagged - want.precision) < 1e-12, `${name} precision at ${pct}%`);
+    }
+  }
+});
+
+test("rounding matches Python's round()", () => {
+  assert.deepEqual([0.5, 1.5, 2.5, 1974.5, 2.4, 2.6].map(roundHalfEven), [0, 2, 2, 1974, 2, 3]);
 });
