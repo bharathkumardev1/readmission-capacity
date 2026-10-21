@@ -102,8 +102,6 @@ NUMERIC = [
     "lace",
 ]
 CATEGORICAL = [
-    "race",
-    "gender",
     "admission_type_id",
     "discharge_disposition_id",
     "admission_source_id",
@@ -119,6 +117,10 @@ CATEGORICAL = [
     "change",
     "diabetesMed",
 ]
+# Race and gender are kept for checking the call list by group, not for ranking patients:
+# a care team shouldn't decide who to call from them. design_checks measures what adding
+# them back would change.
+DESCRIPTIVE = ["race", "gender"]
 TOP_SPECIALTIES = 15
 
 
@@ -135,7 +137,7 @@ def add_features(df: pd.DataFrame, specialties: list[str] | None = None) -> pd.D
         out["medical_specialty"] = out["medical_specialty"].where(
             known | out["medical_specialty"].isna(), "other"
         )
-    for col in CATEGORICAL:
+    for col in CATEGORICAL + DESCRIPTIVE:
         out[col] = out[col].astype("string").fillna("missing").astype(str)
     return out
 
