@@ -3,6 +3,7 @@
 readmit run        download the UCI data, train, evaluate; write results/ and artifacts/
 readmit serve      scoring API on :8000
 readmit loadtest   closed-loop load test against a running service
+readmit report     rewrite results/RESULTS.md from metrics.json and load.json
 readmit export     files for the browser demo (trees, calibration, capacity curves, call list)
 """
 
@@ -15,6 +16,11 @@ import sys
 from pathlib import Path
 
 
+def _load_results(results_dir: Path) -> dict | None:
+    path = results_dir / "load.json"
+    return json.loads(path.read_text()) if path.exists() else None
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     import numpy as np
 
@@ -25,7 +31,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "metrics.json").write_text(json.dumps(results, indent=1) + "\n")
-    write_markdown(results, out / "RESULTS.md")
+    write_markdown(results, out / "RESULTS.md", _load_results(out))
     np.savez_compressed(Path(args.model_dir) / "test_scores.npz", **arrays)
     ship = results["shipped"]["model"]
     t = results["test"][ship]
@@ -62,7 +68,18 @@ def cmd_loadtest(args: argparse.Namespace) -> int:
     path.write_text(json.dumps({"meta": {**meta(args.command_line), "server": args.server_note,
                                          "usd_per_vcpu_hour": USD_PER_VCPU_HOUR}, "levels": out}, indent=1)
                     + "\n")
+    if (path.parent / "metrics.json").exists():
+        cmd_report(argparse.Namespace(results=str(path.parent)))
     return 0 if all(r["errors"] == 0 for r in out) else 1
+
+
+def cmd_report(args: argparse.Namespace) -> int:
+    from .report import write_markdown
+
+    results = Path(args.results)
+    write_markdown(json.loads((results / "metrics.json").read_text()), results / "RESULTS.md",
+                   _load_results(results))
+    return 0
 
 
 def cmd_export(args: argparse.Namespace) -> int:
@@ -97,6 +114,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--server-note", default="")
     p.add_argument("--out", default="results/load.json")
     p.set_defaults(func=cmd_loadtest)
+
+    p = sub.add_parser("report", help="rewrite RESULTS.md from the results files")
+    p.add_argument("--results", default="results")
+    p.set_defaults(func=cmd_report)
 
     p = sub.add_parser("export", help="files for the browser demo")
     p.add_argument("--data-dir", default="data")

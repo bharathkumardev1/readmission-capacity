@@ -9,7 +9,26 @@ def _ci(ci: list[float], fmt: str = ".3f") -> str:
     return f"{ci[0]:{fmt}} to {ci[1]:{fmt}}"
 
 
-def write_markdown(r: dict, path: Path) -> None:
+def load_section(load: dict) -> list[str]:
+    m = load["meta"]
+    lines = ["## Load test\n",
+             f"`{m['command']}` at commit `{(m['git_sha'] or 'unknown')[:7]}`"
+             f"{' with uncommitted changes' if m['git_dirty'] else ''} on {m['date']}: {m['server']}; "
+             f"{m['cpu']}. Each client posts a batch of test encounters, waits for the scores and posts "
+             f"the next. Dollars per million encounters price one vCPU at ${m['usd_per_vcpu_hour']:.4f} an "
+             "hour (half an AWS c7i.large on demand in us-east-1) and assume this throughput carries over "
+             "to it, which I haven't measured.\n",
+             "| Encounters per request | Clients | Requests/s | Encounters/s | p50 ms | p95 ms | p99 ms "
+             "| Errors | Server RSS MB | $ per million encounters |\n" + "|---" * 10 + "|"]
+    lines += [f"| {x['batch']} | {x['concurrency']} | {x['requests_per_s']:,.1f} | "
+              f"{x['encounters_per_s']:,.0f} | {x['p50_ms']:.1f} | {x['p95_ms']:.1f} | {x['p99_ms']:.1f} | "
+              f"{x['errors']} | {x['server_rss_mb']:.0f} | {x['usd_per_million_encounters']:.4f} |"
+              for x in load["levels"]]
+    return lines
+
+
+def write_markdown(r: dict, path: Path, load: dict | None = None) -> None:
+    """``load`` is results/load.json when the load test has been run."""
     m, b, ship = r["meta"], r["bootstrap"], r["shipped"]["model"]
     te = m["splits"]["test"]
     lines = [
@@ -88,5 +107,7 @@ def write_markdown(r: dict, path: Path) -> None:
     fit = ", ".join(f"{k} {v:.1f} s" for k, v in m["fit_seconds"].items())
     lines += ["", f"Early stopping on validation AUC: {trees}. Fit time on one thread: {fit}. "
               f"The whole run took {m['seconds']:.0f} s.\n"]
+    if load:
+        lines += load_section(load)
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text("\n".join(lines) + "\n", encoding="utf8")
