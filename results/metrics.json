@@ -1,6 +1,7 @@
 {
  "meta": {
-  "git_sha": "4c111cccde4a76470cffaafa2318f981ef265ed1",
+  "git_sha": "d71f68fc9c2316445e6cadf86a78ac646fae710e",
+  "data_source": "https://raw.githubusercontent.com/fairlearn/talks/8e768c372afb03099757c8ba2c43cfc95a681598/2021_scipy_tutorial/data/diabetic_data.csv",
   "git_dirty": false,
   "command": "readmit run",
   "date": "2026-10-21",
@@ -66,11 +67,11 @@
    "XGBoost": 175
   },
   "fit_seconds": {
-   "logistic regression": 1.17,
-   "LightGBM": 5.29,
-   "XGBoost": 5.28
+   "logistic regression": 0.73,
+   "LightGBM": 4.32,
+   "XGBoost": 4.18
   },
-  "seconds": 159.4
+  "seconds": 119.4
  },
  "shipped": {
   "model": "LightGBM",
