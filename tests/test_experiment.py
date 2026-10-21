@@ -21,7 +21,15 @@ def test_full_run_on_synthetic_data(tmp_path, monkeypatch):
     assert (tmp_path / "model" / "booster.json").exists() and len(arrays["y"]) == results["test"]["LACE"]["n"]
     write_markdown(json.loads(json.dumps(results)), tmp_path / "RESULTS.md")
     text = (tmp_path / "RESULTS.md").read_text()
-    assert "## Simulated shifts" in text and "| XGBoost |" in text
+    assert "## Simulated shifts" in text and "| XGBoost |" in text and "## Load test" not in text
+    level = {"batch": 100, "concurrency": 2, "requests_per_s": 41.5, "encounters_per_s": 4150.0,
+             "p50_ms": 47.1, "p95_ms": 52.3, "p99_ms": 60.0, "errors": 0, "server_rss_mb": 310.2,
+             "usd_per_million_encounters": 0.003}
+    load = {"meta": {**results["meta"], "server": "1 worker", "usd_per_vcpu_hour": 0.044625},
+            "levels": [level]}
+    write_markdown(json.loads(json.dumps(results)), tmp_path / "RESULTS.md", load)
+    row = "| 100 | 2 | 41.5 | 4,150 | 47.1 | 52.3 | 60.0 | 0 | 310 | 0.0030 |"
+    assert row in (tmp_path / "RESULTS.md").read_text()
 
 
 def test_cli_records_the_command(tmp_path, monkeypatch):
