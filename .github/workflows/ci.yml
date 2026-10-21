@@ -55,7 +55,26 @@ jobs:
           print("reproduced:", {k: round(new["test"]["LightGBM"][k], 4) for k in ("auroc", "auprc", "brier")})
           PY
       - name: Reason-code descriptions against IDs_mapping.csv
-        run: test -f data/IDs_mapping.csv && pytest -q tests/test_reasons.py -rs
+        # The official wording of each code we describe goes on the run summary as a notice, and
+        # a failure's assertion as an error, so neither needs the raw log.
+        run: |
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, "tests")
+          from test_reasons import KEYWORDS, read_mapping
+          path = Path("data/IDs_mapping.csv")
+          if not path.exists():
+              print("::error::data/IDs_mapping.csv is missing: the extract didn't come from the UCI zip")
+              sys.exit(1)
+          official = read_mapping(path)
+          for col, code in KEYWORDS:
+              print(f"::notice::{col} {code}: {official.get((col, code), '(not in the file)')}")
+          PY
+          pytest -q tests/test_reasons.py -rs --tb=line -p no:cacheprovider | tee pytest.out
+          status=${PIPESTATUS[0]}
+          grep -E "^(E |/.*:[0-9]+: )" pytest.out | sed 's/^/::error::/' || true
+          exit $status
       - run: readmit export --model-dir ci-artifacts --out web/test/data
       - run: READMIT_RESULTS=../ci-results npm test
         working-directory: web

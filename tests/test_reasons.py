@@ -25,6 +25,21 @@ OURS = {"admission_type_id": ADMISSION_TYPE, "admission_source_id": ADMISSION_SO
         "discharge_disposition_id": DISCHARGE}
 
 
+def read_mapping(path: Path) -> dict[tuple[str, str], str]:
+    """IDs_mapping.csv is three tables in one file, each starting with its ``*_id`` header."""
+    official: dict[tuple[str, str], str] = {}
+    column = None
+    for row in csv.reader(path.read_text(encoding="utf-8-sig").splitlines()):
+        row = [c.strip() for c in row]
+        if not row or not any(row):
+            continue
+        if row[0].endswith("_id"):
+            column = row[0]
+            continue
+        official[(column, row[0])] = row[1].lower() if len(row) > 1 else ""
+    return official
+
+
 def test_descriptions_read_like_a_note():
     assert describe("number_inpatient", 3.0) == "3 inpatient stays in the prior year"
     assert describe("number_inpatient", 1.0) == "1 inpatient stay in the prior year"
@@ -54,15 +69,7 @@ def test_reason_codes_are_the_largest_positive_contributions():
 
 @pytest.mark.skipif(not MAPPING.exists(), reason="IDs_mapping.csv only comes with the UCI download")
 def test_descriptions_match_the_datasets_own_mapping():
-    official: dict[tuple[str, str], str] = {}
-    column = None
-    for row in csv.reader(MAPPING.read_text(encoding="utf8").splitlines()):
-        if not row or not any(row):
-            continue
-        if row[0].endswith("_id"):
-            column = row[0]
-            continue
-        official[(column, row[0].strip())] = row[1].lower()
+    official = read_mapping(MAPPING)
     for (col, code), word in KEYWORDS.items():
         assert code in OURS[col]
         assert word in official[(col, code)], (col, code, official[(col, code)])
