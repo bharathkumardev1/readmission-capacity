@@ -1,6 +1,8 @@
 """readmit: 30-day readmission risk evaluated the way a care team would use it.
 
-readmit run      download the UCI data, train, evaluate; write results/ and artifacts/
+readmit run        download the UCI data, train, evaluate; write results/ and artifacts/
+readmit serve      scoring API on :8000
+readmit loadtest   closed-loop load test against a running service
 """
 
 from __future__ import annotations
@@ -31,6 +33,37 @@ def cmd_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_serve(args: argparse.Namespace) -> int:
+    import uvicorn
+
+    uvicorn.run("readmit.service:app", host=args.host, port=args.port)
+    return 0
+
+
+def cmd_loadtest(args: argparse.Namespace) -> int:
+    import pandas as pd
+
+    from . import data as D
+    from .loadtest import USD_PER_VCPU_HOUR, run
+    from .service import RAW_COLUMNS
+
+    test = D.split(D.clean(D.load(D.download(Path(args.data_dir)))))["test"]
+    raw = test[RAW_COLUMNS].astype(object).where(pd.notna(test[RAW_COLUMNS]), None)
+    rows = [{k: v for k, v in r.items() if v is not None} for r in raw.to_dict(orient="records")]
+    levels = tuple(int(c) for c in args.levels.split(","))
+    out = []
+    for batch in (int(b) for b in args.batches.split(",")):
+        out += run(args.base, rows, batch, levels, args.seconds)
+    from .experiment import meta
+
+    path = Path(args.out)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"meta": {**meta(args.command_line), "server": args.server_note,
+                                         "usd_per_vcpu_hour": USD_PER_VCPU_HOUR}, "levels": out}, indent=1)
+                    + "\n")
+    return 0 if all(r["errors"] == 0 for r in out) else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="readmit", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -40,6 +73,21 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--model-dir", default="artifacts")
     p.add_argument("--out", default="results")
     p.set_defaults(func=cmd_run)
+
+    p = sub.add_parser("serve", help="scoring API")
+    p.add_argument("--host", default="0.0.0.0")
+    p.add_argument("--port", type=int, default=8000)
+    p.set_defaults(func=cmd_serve)
+
+    p = sub.add_parser("loadtest", help="closed-loop load test against a running service")
+    p.add_argument("--base", default="http://127.0.0.1:8000")
+    p.add_argument("--data-dir", default="data")
+    p.add_argument("--batches", default="1,100", help="encounters per request, comma-separated")
+    p.add_argument("--levels", default="1,2,4,8")
+    p.add_argument("--seconds", type=float, default=30.0)
+    p.add_argument("--server-note", default="")
+    p.add_argument("--out", default="results/load.json")
+    p.set_defaults(func=cmd_loadtest)
 
     argv = sys.argv[1:] if argv is None else argv
     args = parser.parse_args(argv)
