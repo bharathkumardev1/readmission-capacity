@@ -15,7 +15,9 @@ dependencies = [
   "pandas>=2.1",
   "scikit-learn>=1.4",
   "lightgbm>=4.3",
-  "xgboost>=2.1",
+  # The CPU-only build: same library, without the CUDA collective library the full Linux wheel pulls in.
+  "xgboost-cpu>=2.1; sys_platform != 'darwin'",
+  "xgboost>=2.1; sys_platform == 'darwin'",
 ]
 
 [project.optional-dependencies]
