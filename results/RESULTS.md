@@ -1,6 +1,6 @@
 # Results
 
-`readmit run` at commit `4c111cc` on 2026-10-21: Intel(R) Xeon(R) Processor @ 2.10GHz, Python 3.13.16, LightGBM 4.7.0, XGBoost 3.4.1, scikit-learn 1.9.1, pandas 3.0.6. 101,766 encounters, 2,423 dropped for death or hospice discharge. Test split: 19,745 encounters from 13,908 patients, 11.5% back within 30 days. Intervals: 2,000 bootstrap resamples over patients.
+`readmit run` at commit `d71f68f` on 2026-10-21: Intel(R) Xeon(R) Processor @ 2.10GHz, Python 3.13.16, LightGBM 4.7.0, XGBoost 3.4.1, scikit-learn 1.9.1, pandas 3.0.6. 101,766 encounters, 2,423 dropped for death or hospice discharge. Test split: 19,745 encounters from 13,908 patients, 11.5% back within 30 days. Intervals: 2,000 bootstrap resamples over patients.
 
 Shipped model, picked on validation by recall at 10% and then AUROC: **LightGBM**.
 
@@ -149,5 +149,5 @@ PSI by input for each shift:
 | class-weighted training (is_unbalance) | 0.672 | 0.245 | 19,745 |
 | race and gender as features | 0.673 | 0.247 | 19,745 |
 
-Early stopping on validation AUC: LightGBM 287 trees, XGBoost 175 trees. Fit time on one thread: logistic regression 1.2 s, LightGBM 5.3 s, XGBoost 5.3 s. The whole run took 159 s.
+Early stopping on validation AUC: LightGBM 287 trees, XGBoost 175 trees. Fit time on one thread: logistic regression 0.7 s, LightGBM 4.3 s, XGBoost 4.2 s. The whole run took 119 s.
 
