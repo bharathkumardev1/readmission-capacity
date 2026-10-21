@@ -29,6 +29,7 @@ UCI_ZIP = "https://archive.ics.uci.edu/static/public/296/diabetes+130-us+hospita
 MIRROR = ("https://raw.githubusercontent.com/fairlearn/talks/8e768c372afb03099757c8ba2c43cfc95a681598/"
           "2021_scipy_tutorial/data/diabetic_data.csv")
 CSV_NAME = "diabetic_data.csv"
+MAPPING_NAME = "IDs_mapping.csv"  # descriptions of the ID codes; only the UCI zip has it
 CSV_SHA256 = "da21942c25a10a51a8842907ab01a8530b06232616b17d317441d592a20c4359"
 
 # discharge_disposition_id codes from the dataset's IDs_mapping.csv
@@ -62,6 +63,9 @@ def download(data_dir: Path, sources: tuple[str, ...] = (UCI_ZIP, MIRROR)) -> Pa
             if source.endswith(".zip"):
                 with zipfile.ZipFile(io.BytesIO(blob)) as z:
                     blob = z.read(next(n for n in z.namelist() if n.endswith(CSV_NAME)))
+                    mapping = [n for n in z.namelist() if n.endswith(MAPPING_NAME)]
+                    if mapping:
+                        (data_dir / MAPPING_NAME).write_bytes(z.read(mapping[0]))
         except OSError as exc:
             errors.append(f"{source}: {exc}")
             continue
