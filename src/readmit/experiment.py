@@ -67,7 +67,9 @@ def meta(command: str) -> dict:
 
     return {"git_sha": git("rev-parse", "HEAD"),
             "data_source": _data_source(),
-            "git_dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
+            # Dirty means code or configs differ from the commit; results/ is where output goes.
+            "git_dirty": bool(git("status", "--porcelain", "--untracked-files=no", "--", ".",
+                                  ":(exclude)results")),
             "command": command, "date": time.strftime("%Y-%m-%d"), "python": platform.python_version(),
             "numpy": np.__version__, "pandas": pd.__version__, "sklearn": sklearn.__version__,
             "lightgbm": lightgbm.__version__, "xgboost": xgboost.__version__, "cpu": cpu_name(),
