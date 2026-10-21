@@ -1,0 +1,12 @@
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# The UCI extract and trained models, rebuilt by `make run`.
+/data
+/artifacts
+/build
+web/node_modules/
+web/test/data/
