@@ -35,3 +35,24 @@ def test_cli_records_the_command(tmp_path, monkeypatch):
                  "--out", str(tmp_path / "out")]) == 0
     meta = json.loads((tmp_path / "out" / "metrics.json").read_text())["meta"]
     assert meta["command"].startswith("readmit run --data-dir")
+
+
+def test_new_results_dont_make_the_checkout_dirty(tmp_path, monkeypatch):
+    import subprocess
+
+    from readmit.experiment import meta
+
+    def git(*args):
+        subprocess.run(["git", "-C", str(tmp_path), *args], check=True, capture_output=True)
+
+    git("init", "-q")
+    (tmp_path / "results").mkdir()
+    (tmp_path / "results" / "metrics.json").write_text("{}")
+    (tmp_path / "model.py").write_text("x = 1\n")
+    git("add", ".")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init")
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "results" / "metrics.json").write_text('{"auroc": 0.67}')
+    assert meta("readmit run")["git_dirty"] is False
+    (tmp_path / "model.py").write_text("x = 2\n")
+    assert meta("readmit run")["git_dirty"] is True
