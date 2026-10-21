@@ -55,12 +55,18 @@ def cpu_name() -> str | None:
     return platform.processor() or None
 
 
+def _data_source(data_dir: Path = Path("data")) -> str | None:
+    path = data_dir / "source.json"
+    return json.loads(path.read_text())["url"] if path.exists() else None
+
+
 def meta(command: str) -> dict:
     import lightgbm
     import sklearn
     import xgboost
 
     return {"git_sha": git("rev-parse", "HEAD"),
+            "data_source": _data_source(),
             "git_dirty": bool(git("status", "--porcelain", "--untracked-files=no")),
             "command": command, "date": time.strftime("%Y-%m-%d"), "python": platform.python_version(),
             "numpy": np.__version__, "pandas": pd.__version__, "sklearn": sklearn.__version__,

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import json
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -49,7 +50,21 @@ def content_sha256(data: bytes) -> str:
     return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
 
 
+def _from_zip(blob: bytes) -> dict[str, bytes]:
+    """Every file in the zip by lowercased base name, looking one level into nested zips."""
+    out: dict[str, bytes] = {}
+    with zipfile.ZipFile(io.BytesIO(blob)) as z:
+        for name in z.namelist():
+            base = name.rsplit("/", 1)[-1].lower()
+            if base.endswith(".zip"):
+                out.update({k: v for k, v in _from_zip(z.read(name)).items() if k not in out})
+            elif base:
+                out[base] = z.read(name)
+    return out
+
+
 def download(data_dir: Path, sources: tuple[str, ...] = (UCI_ZIP, MIRROR)) -> Path:
+    """The CSV checked against the pinned hash. ``source.json`` records where it came from."""
     data_dir = Path(data_dir)
     target = data_dir / CSV_NAME
     if target.exists() and content_sha256(target.read_bytes()) == CSV_SHA256:
@@ -57,23 +72,24 @@ def download(data_dir: Path, sources: tuple[str, ...] = (UCI_ZIP, MIRROR)) -> Pa
     data_dir.mkdir(parents=True, exist_ok=True)
     errors = []
     for source in sources:
+        files: dict[str, bytes] = {}
         try:
             with urllib.request.urlopen(source, timeout=120) as resp:
                 blob = resp.read()
             if source.endswith(".zip"):
-                with zipfile.ZipFile(io.BytesIO(blob)) as z:
-                    blob = z.read(next(n for n in z.namelist() if n.endswith(CSV_NAME)))
-                    mapping = [n for n in z.namelist() if n.endswith(MAPPING_NAME)]
-                    if mapping:
-                        (data_dir / MAPPING_NAME).write_bytes(z.read(mapping[0]))
-        except OSError as exc:
-            errors.append(f"{source}: {exc}")
+                files = _from_zip(blob)
+                blob = files[CSV_NAME.lower()]
+        except (OSError, KeyError, zipfile.BadZipFile) as exc:
+            errors.append(f"{source}: {exc!r}")
             continue
         got = content_sha256(blob)
         if got != CSV_SHA256:
             errors.append(f"{source}: sha256 {got} does not match the pinned {CSV_SHA256}")
             continue
         target.write_bytes(blob.replace(b"\r\n", b"\n"))
+        if MAPPING_NAME.lower() in files:
+            (data_dir / MAPPING_NAME).write_bytes(files[MAPPING_NAME.lower()])
+        (data_dir / "source.json").write_text(json.dumps({"url": source, "files": sorted(files)}))
         return target
     raise RuntimeError("could not get the dataset:\n  " + "\n  ".join(errors))
 

@@ -59,10 +59,13 @@ jobs:
         # a failure's assertion as an error, so neither needs the raw log.
         run: |
           python - <<'PY'
+          import json
           import sys
           from pathlib import Path
           sys.path.insert(0, "tests")
           from test_reasons import KEYWORDS, read_mapping
+          source = json.loads(Path("data/source.json").read_text())
+          print(f"::notice::data from {source['url']}; files: {', '.join(source['files']) or '(not a zip)'}")
           path = Path("data/IDs_mapping.csv")
           if not path.exists():
               print("::error::data/IDs_mapping.csv is missing: the extract didn't come from the UCI zip")
