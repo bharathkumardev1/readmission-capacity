@@ -55,7 +55,7 @@ jobs:
           print("reproduced:", {k: round(new["test"]["LightGBM"][k], 4) for k in ("auroc", "auprc", "brier")})
           PY
       - name: Reason-code descriptions against IDs_mapping.csv
-        # The official wording of each code we describe goes on the run summary as a notice, and
+        # The official wording of the codes we describe goes on the run summary as a notice, and
         # a failure's assertion as an error, so neither needs the raw log.
         run: |
           python - <<'PY'
@@ -71,8 +71,9 @@ jobs:
               print("::error::data/IDs_mapping.csv is missing: the extract didn't come from the UCI zip")
               sys.exit(1)
           official = read_mapping(path)
-          for col, code in KEYWORDS:
-              print(f"::notice::{col} {code}: {official.get((col, code), '(not in the file)')}")
+          # One notice for all codes: GitHub keeps only ten notices per step.
+          lines = [f"{col} {code}: {official.get((col, code), '(not in the file)')}" for col, code in KEYWORDS]
+          print("::notice::" + "%0A".join(lines))
           PY
           pytest -q tests/test_reasons.py -rs --tb=line -p no:cacheprovider | tee pytest.out
           status=${PIPESTATUS[0]}
