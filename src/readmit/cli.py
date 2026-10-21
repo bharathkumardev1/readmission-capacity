@@ -3,6 +3,7 @@
 readmit run        download the UCI data, train, evaluate; write results/ and artifacts/
 readmit serve      scoring API on :8000
 readmit loadtest   closed-loop load test against a running service
+readmit export     files for the browser demo (trees, calibration, capacity curves, call list)
 """
 
 from __future__ import annotations
@@ -64,6 +65,14 @@ def cmd_loadtest(args: argparse.Namespace) -> int:
     return 0 if all(r["errors"] == 0 for r in out) else 1
 
 
+def cmd_export(args: argparse.Namespace) -> int:
+    from .experiment import prepare
+    from .export import export
+
+    print(json.dumps(export(Path(args.model_dir), prepare(Path(args.data_dir))["test"], Path(args.out))))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="readmit", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -88,6 +97,12 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--server-note", default="")
     p.add_argument("--out", default="results/load.json")
     p.set_defaults(func=cmd_loadtest)
+
+    p = sub.add_parser("export", help="files for the browser demo")
+    p.add_argument("--data-dir", default="data")
+    p.add_argument("--model-dir", default="artifacts")
+    p.add_argument("--out", default="build/web")
+    p.set_defaults(func=cmd_export)
 
     argv = sys.argv[1:] if argv is None else argv
     args = parser.parse_args(argv)
