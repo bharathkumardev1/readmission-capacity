@@ -44,60 +44,64 @@ ROUNDS = 3000
 EARLY_STOP = 200
 
 
-def logistic(train: pd.DataFrame) -> object:
+def logistic(train: pd.DataFrame, features: list[str] = FEATURES) -> object:
+    cats = [c for c in features if c not in NUMERIC]
     pre = ColumnTransformer([
-        ("num", StandardScaler(), NUMERIC),
-        ("cat", OneHotEncoder(handle_unknown="ignore", min_frequency=50), CATEGORICAL),
+        ("num", StandardScaler(), [c for c in features if c in NUMERIC]),
+        ("cat", OneHotEncoder(handle_unknown="ignore", min_frequency=50), cats),
     ])
     model = make_pipeline(pre, LogisticRegression(max_iter=2000, C=1.0))
-    model.fit(train[FEATURES], train["y"])
+    model.fit(train[features], train["y"])
     return model
 
 
-def vocabularies(train: pd.DataFrame) -> dict[str, list[str]]:
-    return {c: sorted(train[c].astype(str).unique()) for c in CATEGORICAL}
+def vocabularies(train: pd.DataFrame, features: list[str]) -> dict[str, list[str]]:
+    return {c: sorted(train[c].astype(str).unique()) for c in features if c not in NUMERIC}
 
 
-def frame(df: pd.DataFrame, categories: dict[str, list[str]]) -> pd.DataFrame:
+def frame(df: pd.DataFrame, categories: dict[str, list[str]], features: list[str]) -> pd.DataFrame:
     """Model input with fixed category codes; a value train never saw becomes missing."""
-    x = df[FEATURES].copy()
-    for col in CATEGORICAL:
-        vals = x[col].astype(str)
-        x[col] = pd.Categorical(vals.where(vals.isin(categories[col])), categories=categories[col])
-    for col in NUMERIC:
-        x[col] = x[col].astype(float)
+    x = df[features].copy()
+    for col in features:
+        if col in categories:
+            vals = x[col].astype(str)
+            x[col] = pd.Categorical(vals.where(vals.isin(categories[col])), categories=categories[col])
+        else:
+            x[col] = x[col].astype(float)
     return x
 
 
 class Booster:
     """One trained gradient-boosted model, LightGBM or XGBoost, behind the same calls."""
 
-    def __init__(self, kind: str, model, categories: dict[str, list[str]], trees: int):
+    def __init__(self, kind: str, model, categories: dict[str, list[str]], trees: int,
+                 features: list[str] = FEATURES):
         self.kind, self.model, self.categories, self.trees = kind, model, categories, trees
+        self.features = list(features)
 
     @classmethod
     def train(cls, kind: str, train: pd.DataFrame, valid: pd.DataFrame, params: dict | None = None,
-              rounds: int = ROUNDS) -> Booster:
-        cats = vocabularies(train)
-        xt, xv = frame(train, cats), frame(valid, cats)
+              rounds: int = ROUNDS, features: list[str] = FEATURES) -> Booster:
+        cats = vocabularies(train, features)
+        xt, xv = frame(train, cats, features), frame(valid, cats, features)
         if kind == "lightgbm":
-            dtrain = lgb.Dataset(xt, train["y"], categorical_feature=CATEGORICAL)
+            dtrain = lgb.Dataset(xt, train["y"], categorical_feature=list(cats))
             dvalid = lgb.Dataset(xv, valid["y"], reference=dtrain)
             model = lgb.train({**LIGHTGBM_PARAMS, **(params or {}), "metric": "auc"}, dtrain, rounds,
                               valid_sets=[dvalid],
                               callbacks=[lgb.early_stopping(EARLY_STOP, verbose=False)])
-            return cls(kind, model, cats, model.best_iteration)
+            return cls(kind, model, cats, model.best_iteration, features)
         if kind == "xgboost":
             dtrain = xgb.DMatrix(xt, train["y"], enable_categorical=True)
             dvalid = xgb.DMatrix(xv, valid["y"], enable_categorical=True)
             model = xgb.train({**XGBOOST_PARAMS, **(params or {})}, dtrain, rounds,
                               evals=[(dvalid, "valid")], early_stopping_rounds=EARLY_STOP,
                               verbose_eval=False)
-            return cls(kind, model, cats, model.best_iteration + 1)
+            return cls(kind, model, cats, model.best_iteration + 1, features)
         raise ValueError(f"unknown booster {kind!r}")
 
     def _predict(self, df: pd.DataFrame, **kw) -> np.ndarray:
-        x = frame(df, self.categories)
+        x = frame(df, self.categories, self.features)
         if self.kind == "lightgbm":
             return self.model.predict(x, num_iteration=self.trees, **kw)
         return self.model.predict(xgb.DMatrix(x, enable_categorical=True),
@@ -110,7 +114,7 @@ class Booster:
         return self._predict(df, output_margin=True)
 
     def contributions(self, df: pd.DataFrame) -> np.ndarray:
-        """TreeSHAP per feature in FEATURES order, plus the bias last; each row sums to the margin."""
+        """TreeSHAP per feature in ``features`` order, plus the bias last; each row sums to the margin."""
         if self.kind == "lightgbm":
             return self._predict(df, pred_contrib=True)
         return self._predict(df, pred_contribs=True)
@@ -123,6 +127,7 @@ class Booster:
         else:
             self.model[: self.trees].save_model(str(path / "model.json"))
         (path / "booster.json").write_text(json.dumps({"kind": self.kind, "trees": self.trees,
+                                                       "features": self.features,
                                                        "categories": self.categories}))
 
     @classmethod
@@ -134,7 +139,7 @@ class Booster:
         else:
             model = xgb.Booster()
             model.load_model(str(path / "model.json"))
-        return cls(info["kind"], model, info["categories"], info["trees"])
+        return cls(info["kind"], model, info["categories"], info["trees"], info["features"])
 
 
 class Calibrator:
