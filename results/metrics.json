@@ -1,0 +1,1025 @@
+{
+ "meta": {
+  "git_sha": "4c111cccde4a76470cffaafa2318f981ef265ed1",
+  "git_dirty": false,
+  "command": "readmit run",
+  "date": "2026-10-21",
+  "python": "3.13.16",
+  "numpy": "2.5.4",
+  "pandas": "3.0.6",
+  "sklearn": "1.9.1",
+  "lightgbm": "4.7.0",
+  "xgboost": "3.4.1",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+  "cpus": 2,
+  "rows": {
+   "raw": 101766,
+   "after_exclusions": 99343,
+   "excluded_death_or_hospice": 2423
+  },
+  "splits": {
+   "train": {
+    "encounters": 59817,
+    "patients": 42131,
+    "readmit_rate": 0.11347944564254309
+   },
+   "valid": {
+    "encounters": 19781,
+    "patients": 13951,
+    "readmit_rate": 0.11359385268692179
+   },
+   "test": {
+    "encounters": 19745,
+    "patients": 13908,
+    "readmit_rate": 0.11542162572803241
+   }
+  },
+  "features": [
+   "time_in_hospital",
+   "num_lab_procedures",
+   "num_procedures",
+   "num_medications",
+   "number_outpatient",
+   "number_emergency",
+   "number_inpatient",
+   "number_diagnoses",
+   "age_years",
+   "charlson",
+   "lace",
+   "admission_type_id",
+   "discharge_disposition_id",
+   "admission_source_id",
+   "payer_code",
+   "medical_specialty",
+   "diag_1_group",
+   "diag_2_group",
+   "diag_3_group",
+   "A1Cresult",
+   "max_glu_serum",
+   "insulin",
+   "metformin",
+   "change",
+   "diabetesMed"
+  ],
+  "trees": {
+   "LightGBM": 287,
+   "XGBoost": 175
+  },
+  "fit_seconds": {
+   "logistic regression": 1.17,
+   "LightGBM": 5.29,
+   "XGBoost": 5.28
+  },
+  "seconds": 159.4
+ },
+ "shipped": {
+  "model": "LightGBM",
+  "picked_on": "validation recall at 10%, then AUROC",
+  "validation": {
+   "LightGBM": {
+    "recall_at_10": 0.2416555407209613,
+    "auroc": 0.6718552128031601
+   },
+   "XGBoost": {
+    "recall_at_10": 0.2398753894080997,
+    "auroc": 0.6725222492263616
+   }
+  }
+ },
+ "test": {
+  "prior inpatient stays": {
+   "n": 19745,
+   "positives": 2279,
+   "auroc": 0.6045016966957981,
+   "auprc": 0.17546985761941372,
+   "top5": {
+    "flagged": 987,
+    "precision": 0.2877406281661601,
+    "recall": 0.12461605967529618,
+    "lift": 2.492952480535687
+   },
+   "top10": {
+    "flagged": 1974,
+    "precision": 0.23708206686930092,
+    "recall": 0.2053532250987275,
+    "lift": 2.0540523959343338
+   },
+   "top20": {
+    "flagged": 3949,
+    "precision": 0.19903773107115724,
+    "recall": 0.34488810881965776,
+    "lift": 1.7244405440982886
+   }
+  },
+  "LACE": {
+   "n": 19745,
+   "positives": 2279,
+   "auroc": 0.5727896113791091,
+   "auprc": 0.14444870268859292,
+   "top5": {
+    "flagged": 987,
+    "precision": 0.18034447821681865,
+    "recall": 0.07810443176831944,
+    "lift": 1.562484301180818
+   },
+   "top10": {
+    "flagged": 1974,
+    "precision": 0.1828774062816616,
+    "recall": 0.1584028082492321,
+    "lift": 1.5844293054108856
+   },
+   "top20": {
+    "flagged": 3949,
+    "precision": 0.16206634591035704,
+    "recall": 0.2808249232119351,
+    "lift": 1.4041246160596752
+   }
+  },
+  "logistic regression": {
+   "n": 19745,
+   "positives": 2279,
+   "auroc": 0.662052624827616,
+   "auprc": 0.21835870673046764,
+   "brier": 0.09794536434228018,
+   "mean_predicted": 0.1135590087517437,
+   "observed_rate": 0.11542162572803241,
+   "top5": {
+    "flagged": 987,
+    "precision": 0.3120567375886525,
+    "recall": 0.13514699429574376,
+    "lift": 2.7036245211443366
+   },
+   "top10": {
+    "flagged": 1974,
+    "precision": 0.26545086119554206,
+    "recall": 0.22992540587977184,
+    "lift": 2.299836443311092
+   },
+   "top20": {
+    "flagged": 3949,
+    "precision": 0.2200557103064067,
+    "recall": 0.3813075910487056,
+    "lift": 1.906537955243528
+   }
+  },
+  "LightGBM": {
+   "n": 19745,
+   "positives": 2279,
+   "auroc": 0.6727698927577315,
+   "auprc": 0.236512406640574,
+   "brier": 0.09690087123094006,
+   "mean_predicted": 0.11375460971655842,
+   "observed_rate": 0.11542162572803241,
+   "top5": {
+    "flagged": 987,
+    "precision": 0.3394123606889564,
+    "recall": 0.14699429574374726,
+    "lift": 2.9406305668290673
+   },
+   "top10": {
+    "flagged": 1974,
+    "precision": 0.28824721377912865,
+    "recall": 0.249670908293111,
+    "lift": 2.4973414813817003
+   },
+   "top20": {
+    "flagged": 3949,
+    "precision": 0.23221068624968347,
+    "recall": 0.4023694602896007,
+    "lift": 2.0118473014480034
+   }
+  },
+  "XGBoost": {
+   "n": 19745,
+   "positives": 2279,
+   "auroc": 0.6721760354110163,
+   "auprc": 0.23919951838287032,
+   "brier": 0.09680984169244766,
+   "mean_predicted": 0.11365827172994614,
+   "observed_rate": 0.11542162572803241,
+   "top5": {
+    "flagged": 987,
+    "precision": 0.3323201621073962,
+    "recall": 0.1439227731461167,
+    "lift": 2.8791845549848785
+   },
+   "top10": {
+    "flagged": 1974,
+    "precision": 0.2867274569402229,
+    "recall": 0.24835454146555508,
+    "lift": 2.48417447884366
+   },
+   "top20": {
+    "flagged": 3949,
+    "precision": 0.2294251709293492,
+    "recall": 0.39754278192189557,
+    "lift": 1.9877139096094778
+   }
+  }
+ },
+ "bootstrap": {
+  "resamples": 2000,
+  "models": {
+   "prior inpatient stays": {
+    "auroc": [
+     0.5909272958662215,
+     0.6183046366353815
+    ],
+    "recall@10": [
+     0.18755603847734417,
+     0.2231622180811707
+    ]
+   },
+   "LACE": {
+    "auroc": [
+     0.5588388902073843,
+     0.5854618176058282
+    ],
+    "recall@10": [
+     0.13827863153105233,
+     0.16738951342580025
+    ]
+   },
+   "logistic regression": {
+    "auroc": [
+     0.6487015823875176,
+     0.674360399040698
+    ],
+    "recall@10": [
+     0.2109554479426994,
+     0.2468922000745565
+    ]
+   },
+   "LightGBM": {
+    "auroc": [
+     0.6592460517094678,
+     0.6852302303349378
+    ],
+    "recall@10": [
+     0.2321886442860571,
+     0.26680861022582647
+    ]
+   },
+   "XGBoost": {
+    "auroc": [
+     0.6585504085529289,
+     0.6844681843926709
+    ],
+    "recall@10": [
+     0.23065895413142487,
+     0.265849822383055
+    ]
+   }
+  },
+  "paired": {
+   "prior inpatient stays - LACE auroc": {
+    "mean": 0.03220268218669962,
+    "ci95": [
+     0.015375720070679767,
+     0.048493302503998935
+    ]
+   },
+   "prior inpatient stays - LACE recall@10": {
+    "mean": 0.05268448716337987,
+    "ci95": [
+     0.0329979309935191,
+     0.07237487640907213
+    ]
+   },
+   "prior inpatient stays - logistic regression auroc": {
+    "mean": -0.057338650679761995,
+    "ci95": [
+     -0.06872719382900849,
+     -0.04626751899871082
+    ]
+   },
+   "prior inpatient stays - logistic regression recall@10": {
+    "mean": -0.02323532685152475,
+    "ci95": [
+     -0.03813277500645301,
+     -0.00839318843744116
+    ]
+   },
+   "prior inpatient stays - LightGBM auroc": {
+    "mean": -0.06811462265189444,
+    "ci95": [
+     -0.07933206656460312,
+     -0.05678150799015587
+    ]
+   },
+   "prior inpatient stays - LightGBM recall@10": {
+    "mean": -0.04386873949021833,
+    "ci95": [
+     -0.05950879381506806,
+     -0.02747462425919299
+    ]
+   },
+   "prior inpatient stays - XGBoost auroc": {
+    "mean": -0.06752070460207722,
+    "ci95": [
+     -0.07836373874199283,
+     -0.05652701671963837
+    ]
+   },
+   "prior inpatient stays - XGBoost recall@10": {
+    "mean": -0.042331385215227085,
+    "ci95": [
+     -0.05871859122359727,
+     -0.027442627812998187
+    ]
+   },
+   "LACE - logistic regression auroc": {
+    "mean": -0.08954133286646161,
+    "ci95": [
+     -0.1039089985290362,
+     -0.07541058916941042
+    ]
+   },
+   "LACE - logistic regression recall@10": {
+    "mean": -0.07591981401490462,
+    "ci95": [
+     -0.09483729533478238,
+     -0.05636923906607474
+    ]
+   },
+   "LACE - LightGBM auroc": {
+    "mean": -0.10031730483859405,
+    "ci95": [
+     -0.11561300072281527,
+     -0.08582808324508265
+    ]
+   },
+   "LACE - LightGBM recall@10": {
+    "mean": -0.0965532266535982,
+    "ci95": [
+     -0.1167369480871739,
+     -0.07678502987961792
+    ]
+   },
+   "LACE - XGBoost auroc": {
+    "mean": -0.09972338678877682,
+    "ci95": [
+     -0.11456271417236825,
+     -0.08563155383535914
+    ]
+   },
+   "LACE - XGBoost recall@10": {
+    "mean": -0.09501587237860695,
+    "ci95": [
+     -0.1148595313374241,
+     -0.07512199372603694
+    ]
+   },
+   "logistic regression - LightGBM auroc": {
+    "mean": -0.010775971972132436,
+    "ci95": [
+     -0.016203628223749107,
+     -0.005160595529117066
+    ]
+   },
+   "logistic regression - LightGBM recall@10": {
+    "mean": -0.020633412638693584,
+    "ci95": [
+     -0.03334921114102463,
+     -0.007938531368751518
+    ]
+   },
+   "logistic regression - XGBoost auroc": {
+    "mean": -0.010182053922315209,
+    "ci95": [
+     -0.015261420987799692,
+     -0.004888740362663067
+    ]
+   },
+   "logistic regression - XGBoost recall@10": {
+    "mean": -0.01909605836370234,
+    "ci95": [
+     -0.030942932277404484,
+     -0.006569911945568506
+    ]
+   },
+   "LightGBM - XGBoost auroc": {
+    "mean": 0.0005939180498172251,
+    "ci95": [
+     -0.0021156142484804576,
+     0.003279525638102897
+    ]
+   },
+   "LightGBM - XGBoost recall@10": {
+    "mean": 0.0015373542749912406,
+    "ci95": [
+     -0.0076716533937300855,
+     0.010607022576321302
+    ]
+   }
+  }
+ },
+ "calibration": {
+  "logistic regression": [
+   {
+    "n": 1975,
+    "predicted": 0.046470305208777395,
+    "observed": 0.04658227848101266
+   },
+   {
+    "n": 1975,
+    "predicted": 0.054382885855011914,
+    "observed": 0.05113924050632911
+   },
+   {
+    "n": 1975,
+    "predicted": 0.06754698394315517,
+    "observed": 0.07088607594936709
+   },
+   {
+    "n": 1975,
+    "predicted": 0.08624826908734146,
+    "observed": 0.09569620253164557
+   },
+   {
+    "n": 1975,
+    "predicted": 0.08840041134839924,
+    "observed": 0.09316455696202532
+   },
+   {
+    "n": 1974,
+    "predicted": 0.10781244769705496,
+    "observed": 0.10688956433637285
+   },
+   {
+    "n": 1974,
+    "predicted": 0.12013859879018995,
+    "observed": 0.10891590678824721
+   },
+   {
+    "n": 1974,
+    "predicted": 0.13925610495764476,
+    "observed": 0.14944275582573455
+   },
+   {
+    "n": 1974,
+    "predicted": 0.16880987181489887,
+    "observed": 0.17325227963525835
+   },
+   {
+    "n": 1974,
+    "predicted": 0.2566380620005335,
+    "observed": 0.25835866261398177
+   }
+  ],
+  "LightGBM": [
+   {
+    "n": 1975,
+    "predicted": 0.03824172078823458,
+    "observed": 0.0410126582278481
+   },
+   {
+    "n": 1975,
+    "predicted": 0.04975864994496672,
+    "observed": 0.061772151898734175
+   },
+   {
+    "n": 1975,
+    "predicted": 0.0680546617027821,
+    "observed": 0.06379746835443038
+   },
+   {
+    "n": 1975,
+    "predicted": 0.08494252026577508,
+    "observed": 0.08354430379746836
+   },
+   {
+    "n": 1975,
+    "predicted": 0.09254241708119208,
+    "observed": 0.09316455696202532
+   },
+   {
+    "n": 1974,
+    "predicted": 0.10515865616120798,
+    "observed": 0.10536980749746708
+   },
+   {
+    "n": 1974,
+    "predicted": 0.1158643147543621,
+    "observed": 0.10840932117527863
+   },
+   {
+    "n": 1974,
+    "predicted": 0.12966007286327338,
+    "observed": 0.13323201621073963
+   },
+   {
+    "n": 1974,
+    "predicted": 0.18019293768844052,
+    "observed": 0.17477203647416414
+   },
+   {
+    "n": 1974,
+    "predicted": 0.27324931160876365,
+    "observed": 0.28926038500506585
+   }
+  ],
+  "XGBoost": [
+   {
+    "n": 1975,
+    "predicted": 0.03889210522174835,
+    "observed": 0.04708860759493671
+   },
+   {
+    "n": 1975,
+    "predicted": 0.05471460521221161,
+    "observed": 0.060759493670886074
+   },
+   {
+    "n": 1975,
+    "predicted": 0.0639544129371643,
+    "observed": 0.06278481012658228
+   },
+   {
+    "n": 1975,
+    "predicted": 0.07908023148775101,
+    "observed": 0.07645569620253165
+   },
+   {
+    "n": 1975,
+    "predicted": 0.09595198184251785,
+    "observed": 0.0840506329113924
+   },
+   {
+    "n": 1974,
+    "predicted": 0.1074727401137352,
+    "observed": 0.1160081053698075
+   },
+   {
+    "n": 1974,
+    "predicted": 0.11370731145143509,
+    "observed": 0.11195542046605876
+   },
+   {
+    "n": 1974,
+    "predicted": 0.13810190558433533,
+    "observed": 0.1398176291793313
+   },
+   {
+    "n": 1974,
+    "predicted": 0.17210489511489868,
+    "observed": 0.171225937183384
+   },
+   {
+    "n": 1974,
+    "predicted": 0.2727220058441162,
+    "observed": 0.28419452887537994
+   }
+  ]
+ },
+ "subgroups": {
+  "age": [
+   {
+    "group": "50 to 69",
+    "n": 7687,
+    "readmit_rate": 0.10576297645375309,
+    "auroc": 0.6861120982463824,
+    "flagged_share": 0.09743723168986601,
+    "recall_at_10": 0.26691266912669126
+   },
+   {
+    "group": "70 and over",
+    "n": 8867,
+    "readmit_rate": 0.1221382654787414,
+    "auroc": 0.6479123784470643,
+    "flagged_share": 0.09495883613397993,
+    "recall_at_10": 0.21514312096029548
+   },
+   {
+    "group": "under 50",
+    "n": 3191,
+    "readmit_rate": 0.12002507051081165,
+    "auroc": 0.7000271510715375,
+    "flagged_share": 0.12002507051081165,
+    "recall_at_10": 0.31070496083550914
+   }
+  ],
+  "gender": [
+   {
+    "group": "Female",
+    "n": 10609,
+    "readmit_rate": 0.11593929682345179,
+    "auroc": 0.6690530739404845,
+    "flagged_share": 0.1032142520501461,
+    "recall_at_10": 0.2601626016260163
+   },
+   {
+    "group": "Male",
+    "n": 9136,
+    "readmit_rate": 0.11482049036777583,
+    "auroc": 0.6771080891869085,
+    "flagged_share": 0.09621278458844133,
+    "recall_at_10": 0.23736892278360344
+   }
+  ],
+  "race": [
+   {
+    "group": "AfricanAmerican",
+    "n": 3692,
+    "readmit_rate": 0.116738894907909,
+    "auroc": 0.6617801181224212,
+    "flagged_share": 0.10455037919826653,
+    "recall_at_10": 0.23897911832946636
+   },
+   {
+    "group": "Caucasian",
+    "n": 14806,
+    "readmit_rate": 0.1169796028637039,
+    "auroc": 0.6728027278370307,
+    "flagged_share": 0.10124273942996083,
+    "recall_at_10": 0.25346420323325636
+   },
+   {
+    "group": "Hispanic",
+    "n": 400,
+    "readmit_rate": 0.1075,
+    "auroc": 0.6873819295159924,
+    "flagged_share": 0.08,
+    "recall_at_10": 0.23255813953488372
+   },
+   {
+    "group": "Other",
+    "n": 288,
+    "readmit_rate": 0.09722222222222222,
+    "auroc": 0.7149725274725276,
+    "flagged_share": 0.10069444444444445,
+    "recall_at_10": 0.39285714285714285
+   },
+   {
+    "group": "missing",
+    "n": 417,
+    "readmit_rate": 0.07434052757793765,
+    "auroc": 0.6858599364867123,
+    "flagged_share": 0.0407673860911271,
+    "recall_at_10": 0.06451612903225806
+   }
+  ],
+  "admission": [
+   {
+    "group": "elective",
+    "n": 3731,
+    "readmit_rate": 0.11096220852318413,
+    "auroc": 0.6811077176716636,
+    "flagged_share": 0.08764406325381935,
+    "recall_at_10": 0.27053140096618356
+   },
+   {
+    "group": "emergency",
+    "n": 10421,
+    "readmit_rate": 0.11937434027444584,
+    "auroc": 0.6652500817260543,
+    "flagged_share": 0.10219748584588811,
+    "recall_at_10": 0.2395498392282958
+   },
+   {
+    "group": "other",
+    "n": 5593,
+    "readmit_rate": 0.11103164670123368,
+    "auroc": 0.6773325145776089,
+    "flagged_share": 0.10405864473448954,
+    "recall_at_10": 0.2560386473429952
+   }
+  ],
+  "prior inpatient stays": [
+   {
+    "group": "1 or more",
+    "n": 6582,
+    "readmit_rate": 0.17061683378912185,
+    "auroc": 0.6347014586351393,
+    "flagged_share": 0.234427225767244,
+    "recall_at_10": 0.38913624220837045
+   },
+   {
+    "group": "none",
+    "n": 13163,
+    "readmit_rate": 0.08782192509306389,
+    "auroc": 0.6409501464399515,
+    "flagged_share": 0.03274329560130669,
+    "recall_at_10": 0.11418685121107267
+   }
+  ]
+ },
+ "misses_at_10": {
+  "readmissions": 2279,
+  "flagged": 1974,
+  "caught": 569,
+  "expected_on_list": 539.3941411156994,
+  "missed": 1710,
+  "missed_with_no_prior_visits": 833,
+  "caught_with_no_prior_visits": 110,
+  "readmissions_with_no_prior_visits": 943,
+  "share_with_prior_inpatient": {
+   "all": 0.33335021524436564,
+   "on_list": 0.7816616008105369
+  }
+ },
+ "reasons_at_10": {
+  "encounters": 1974,
+  "first_reason": {
+   "number_inpatient": 0.6134751773049646,
+   "discharge_disposition_id": 0.3677811550151976,
+   "charlson": 0.010638297872340425,
+   "number_emergency": 0.0070921985815602835,
+   "num_medications": 0.0005065856129685917,
+   "payer_code": 0.0005065856129685917
+  },
+  "in_top3": {
+   "number_inpatient": 0.7603850050658562,
+   "discharge_disposition_id": 0.560790273556231,
+   "charlson": 0.3601823708206687,
+   "payer_code": 0.2993920972644377,
+   "number_emergency": 0.1651469098277609,
+   "diag_1_group": 0.12968591691995948,
+   "medical_specialty": 0.11854103343465046,
+   "diag_2_group": 0.10233029381965553,
+   "insulin": 0.09625126646403243,
+   "lace": 0.09270516717325228,
+   "num_medications": 0.08611955420466058,
+   "number_diagnoses": 0.04913880445795339,
+   "diag_3_group": 0.04660587639311044,
+   "number_outpatient": 0.036980749746707196,
+   "admission_type_id": 0.025835866261398176,
+   "age_years": 0.022289766970618033,
+   "admission_source_id": 0.017223910840932118,
+   "num_lab_procedures": 0.013677811550151976,
+   "time_in_hospital": 0.00911854103343465,
+   "num_procedures": 0.0035460992907801418,
+   "max_glu_serum": 0.00303951367781155,
+   "diabetesMed": 0.0010131712259371835
+  },
+  "examples": [
+   {
+    "risk": 0.6666666666666666,
+    "readmitted": 1,
+    "reasons": [
+     "10 inpatient stays in the prior year",
+     "Charlson comorbidity score 10",
+     "third diagnosis: neoplasms"
+    ]
+   },
+   {
+    "risk": 0.6666666666666666,
+    "readmitted": 1,
+    "reasons": [
+     "14 inpatient stays in the prior year",
+     "discharge disposition code 5",
+     "primary diagnosis: diabetes"
+    ]
+   },
+   {
+    "risk": 0.6489357769574126,
+    "readmitted": 0,
+    "reasons": [
+     "18 inpatient stays in the prior year",
+     "9 emergency visits in the prior year",
+     "LACE score 13"
+    ]
+   },
+   {
+    "risk": 0.6428571428571429,
+    "readmitted": 1,
+    "reasons": [
+     "21 inpatient stays in the prior year",
+     "1 emergency visit in the prior year",
+     "second diagnosis: digestive"
+    ]
+   },
+   {
+    "risk": 0.6428571428571429,
+    "readmitted": 1,
+    "reasons": [
+     "9 inpatient stays in the prior year",
+     "Charlson comorbidity score 3",
+     "age 20 to 30"
+    ]
+   }
+  ]
+ },
+ "psi_train_vs_test": {
+  "age_years": 0.0006949045581457373,
+  "number_inpatient": 1.5740514627478576e-05,
+  "number_emergency": 5.266498635069408e-05,
+  "time_in_hospital": 0.0004732473466874627,
+  "num_medications": 0.0005858806999337794,
+  "charlson": 0.00022426651143113733,
+  "lace": 0.0003548935602322418,
+  "model score": 0.0008612866458224812
+ },
+ "shifts": [
+  {
+   "shift": "none (test as is)",
+   "n": 19745,
+   "readmit_rate": 0.11542162572803241,
+   "auroc": 0.6727698927577315,
+   "recall_at_10": 0.249670908293111,
+   "precision_at_10": 0.28824721377912865,
+   "expected_on_list": 539.3941411156993,
+   "observed_on_list": 569,
+   "mean_predicted": 0.11375460971655842,
+   "psi": {
+    "age_years": 0.0006949045581457373,
+    "number_inpatient": 1.5740514627478576e-05,
+    "number_emergency": 5.266498635069408e-05,
+    "time_in_hospital": 0.0004732473466874627,
+    "num_medications": 0.0005858806999337794,
+    "charlson": 0.00022426651143113733,
+    "lace": 0.0003548935602322418,
+    "model score": 0.0008612866458224812
+   },
+   "missing": {
+    "diag_1_group": {
+     "train": 0.00015045889964391393,
+     "now": 0.00015193719929095973
+    },
+    "diag_2_group": {
+     "train": 0.0038784960797097817,
+     "now": 0.0027348695872372753
+    },
+    "diag_3_group": {
+     "train": 0.014995736997843423,
+     "now": 0.013421119270701443
+    },
+    "payer_code": {
+     "train": 0.398632495778792,
+     "now": 0.39144087110660925
+    },
+    "medical_specialty": {
+     "train": 0.48902485915375227,
+     "now": 0.4924284629020005
+    }
+   },
+   "alerts": []
+  },
+  {
+   "shift": "older",
+   "n": 19745,
+   "readmit_rate": 0.12382881742213218,
+   "auroc": 0.6701957989053986,
+   "recall_at_10": 0.2392638036809816,
+   "precision_at_10": 0.29635258358662614,
+   "expected_on_list": 522.7648139050355,
+   "observed_on_list": 585,
+   "mean_predicted": 0.11724765417766199,
+   "psi": {
+    "age_years": 0.26838458412037614,
+    "number_inpatient": 0.0005193084083006286,
+    "number_emergency": 4.0950137047281224e-05,
+    "time_in_hospital": 0.004433489098722628,
+    "num_medications": 0.0014183583899067959,
+    "charlson": 0.0009076735266502579,
+    "lace": 0.0025617221964689555,
+    "model score": 0.02499052141309012
+   },
+   "missing": {
+    "diag_1_group": {
+     "train": 0.00015045889964391393,
+     "now": 5.064573309698658e-05
+    },
+    "diag_2_group": {
+     "train": 0.0038784960797097817,
+     "now": 0.0024816409217523422
+    },
+    "diag_3_group": {
+     "train": 0.014995736997843423,
+     "now": 0.009521397822233477
+    },
+    "payer_code": {
+     "train": 0.398632495778792,
+     "now": 0.3738668017219549
+    },
+    "medical_specialty": {
+     "train": 0.48902485915375227,
+     "now": 0.4996201570017726
+    }
+   },
+   "alerts": [
+    "PSI age_years"
+   ]
+  },
+  {
+   "shift": "more prior inpatient stays",
+   "n": 19745,
+   "readmit_rate": 0.13608508483160295,
+   "auroc": 0.6770460841081478,
+   "recall_at_10": 0.2337179010048381,
+   "precision_at_10": 0.3181357649442756,
+   "expected_on_list": 599.6762211462394,
+   "observed_on_list": 628,
+   "mean_predicted": 0.13342214670596184,
+   "psi": {
+    "age_years": 0.0013495806193534147,
+    "number_inpatient": 0.2843639372083032,
+    "number_emergency": 0.01396555565688268,
+    "time_in_hospital": 0.006582068082718134,
+    "num_medications": 0.005361025903708605,
+    "charlson": 0.0032902769798695904,
+    "lace": 0.009579547600551675,
+    "model score": 0.11645213774269694
+   },
+   "missing": {
+    "diag_1_group": {
+     "train": 0.00015045889964391393,
+     "now": 0.00030387439858191946
+    },
+    "diag_2_group": {
+     "train": 0.0038784960797097817,
+     "now": 0.0024816409217523422
+    },
+    "diag_3_group": {
+     "train": 0.014995736997843423,
+     "now": 0.010534312484173209
+    },
+    "payer_code": {
+     "train": 0.398632495778792,
+     "now": 0.3792352494302355
+    },
+    "medical_specialty": {
+     "train": 0.48902485915375227,
+     "now": 0.49035198784502404
+    }
+   },
+   "alerts": [
+    "PSI number_inpatient"
+   ]
+  },
+  {
+   "shift": "secondary diagnoses missing",
+   "n": 19745,
+   "readmit_rate": 0.11542162572803241,
+   "auroc": 0.6717971007371081,
+   "recall_at_10": 0.2505484861781483,
+   "precision_at_10": 0.28926038500506585,
+   "expected_on_list": 532.8074313542472,
+   "observed_on_list": 571,
+   "mean_predicted": 0.11211814580119168,
+   "psi": {
+    "age_years": 0.0006949045581457373,
+    "number_inpatient": 1.5740514627478576e-05,
+    "number_emergency": 5.266498635069408e-05,
+    "time_in_hospital": 0.0004732473466874627,
+    "num_medications": 0.0005858806999337794,
+    "charlson": 0.028244466325807238,
+    "lace": 0.0042181630175997685,
+    "model score": 0.0007560131129771364
+   },
+   "missing": {
+    "diag_1_group": {
+     "train": 0.00015045889964391393,
+     "now": 0.00015193719929095973
+    },
+    "diag_2_group": {
+     "train": 0.0038784960797097817,
+     "now": 0.3034185869840466
+    },
+    "diag_3_group": {
+     "train": 0.014995736997843423,
+     "now": 0.31066092681691565
+    },
+    "payer_code": {
+     "train": 0.398632495778792,
+     "now": 0.39144087110660925
+    },
+    "medical_specialty": {
+     "train": 0.48902485915375227,
+     "now": 0.4924284629020005
+    }
+   },
+   "alerts": [
+    "missing diag_2_group",
+    "missing diag_3_group"
+   ]
+  }
+ ],
+ "design_checks": {
+  "as built": {
+   "test_auroc": 0.6727698927577315,
+   "recall_at_10": 0.249670908293111,
+   "test_n": 19745
+  },
+  "split by encounter instead of patient": {
+   "test_auroc": 0.6716261230118286,
+   "recall_at_10": 0.2261640798226164,
+   "test_n": 19910
+  },
+  "keep death and hospice discharges": {
+   "test_auroc": 0.6793997706129731,
+   "recall_at_10": 0.25207514198339886,
+   "test_n": 20225
+  },
+  "class-weighted training (is_unbalance)": {
+   "test_auroc": 0.6718566912198548,
+   "recall_at_10": 0.2448442299254059,
+   "test_n": 19745
+  },
+  "race and gender as features": {
+   "test_auroc": 0.6727339173904071,
+   "recall_at_10": 0.24659938569548048,
+   "test_n": 19745
+  }
+ }
+}
