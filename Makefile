@@ -8,7 +8,7 @@ install:
 run:
 	readmit run
 
-# Trees, calibration, capacity curves and the call list for the site's demo.
+# Trees, calibration, capacity curves, the call list and the results files for the site's demo.
 export:
 	readmit export --out build/web
 
