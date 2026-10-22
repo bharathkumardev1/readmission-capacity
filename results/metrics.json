@@ -1,6 +1,6 @@
 {
  "meta": {
-  "git_sha": "d71f68fc9c2316445e6cadf86a78ac646fae710e",
+  "git_sha": "9ea167a39942221f1c035e1074c78891ae61b2ff",
   "data_source": "https://raw.githubusercontent.com/fairlearn/talks/8e768c372afb03099757c8ba2c43cfc95a681598/2021_scipy_tutorial/data/diabetic_data.csv",
   "git_dirty": false,
   "command": "readmit run",
@@ -67,11 +67,11 @@
    "XGBoost": 175
   },
   "fit_seconds": {
-   "logistic regression": 0.73,
-   "LightGBM": 4.32,
-   "XGBoost": 4.18
+   "logistic regression": 0.89,
+   "LightGBM": 4.38,
+   "XGBoost": 4.54
   },
-  "seconds": 119.4
+  "seconds": 128.1
  },
  "shipped": {
   "model": "LightGBM",
@@ -768,7 +768,7 @@
     "readmitted": 1,
     "reasons": [
      "14 inpatient stays in the prior year",
-     "discharge disposition code 5",
+     "transferred to another inpatient care facility",
      "primary diagnosis: diabetes"
     ]
    },
