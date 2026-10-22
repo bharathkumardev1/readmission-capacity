@@ -1,6 +1,6 @@
 # Results
 
-`readmit run` at commit `d71f68f` on 2026-10-21: Intel(R) Xeon(R) Processor @ 2.10GHz, Python 3.13.16, LightGBM 4.7.0, XGBoost 3.4.1, scikit-learn 1.9.1, pandas 3.0.6. 101,766 encounters, 2,423 dropped for death or hospice discharge. Test split: 19,745 encounters from 13,908 patients, 11.5% back within 30 days. Intervals: 2,000 bootstrap resamples over patients.
+`readmit run` at commit `9ea167a` on 2026-10-21: Intel(R) Xeon(R) Processor @ 2.10GHz, Python 3.13.16, LightGBM 4.7.0, XGBoost 3.4.1, scikit-learn 1.9.1, pandas 3.0.6. 101,766 encounters, 2,423 dropped for death or hospice discharge. Test split: 19,745 encounters from 13,908 patients, 11.5% back within 30 days. Intervals: 2,000 bootstrap resamples over patients.
 
 Shipped model, picked on validation by recall at 10% and then AUROC: **LightGBM**.
 
@@ -112,7 +112,7 @@ The five highest-risk encounters:
 | Risk | Readmitted | Reasons |
 |---|---|---|
 | 0.67 | yes | 10 inpatient stays in the prior year; Charlson comorbidity score 10; third diagnosis: neoplasms |
-| 0.67 | yes | 14 inpatient stays in the prior year; discharge disposition code 5; primary diagnosis: diabetes |
+| 0.67 | yes | 14 inpatient stays in the prior year; transferred to another inpatient care facility; primary diagnosis: diabetes |
 | 0.65 | no | 18 inpatient stays in the prior year; 9 emergency visits in the prior year; LACE score 13 |
 | 0.64 | yes | 21 inpatient stays in the prior year; 1 emergency visit in the prior year; second diagnosis: digestive |
 | 0.64 | yes | 9 inpatient stays in the prior year; Charlson comorbidity score 3; age 20 to 30 |
@@ -149,5 +149,19 @@ PSI by input for each shift:
 | class-weighted training (is_unbalance) | 0.672 | 0.245 | 19,745 |
 | race and gender as features | 0.673 | 0.247 | 19,745 |
 
-Early stopping on validation AUC: LightGBM 287 trees, XGBoost 175 trees. Fit time on one thread: logistic regression 0.7 s, LightGBM 4.3 s, XGBoost 4.2 s. The whole run took 119 s.
+Early stopping on validation AUC: LightGBM 287 trees, XGBoost 175 trees. Fit time on one thread: logistic regression 0.9 s, LightGBM 4.4 s, XGBoost 4.5 s. The whole run took 128 s.
 
+## Load test
+
+`readmit loadtest --batches 1,100 --levels 1,2,4,8 --seconds 30 --server-note '1 uvicorn worker pinned to CPU 0, load generator on CPU 1'` at commit `9ea167a` on 2026-10-21: 1 uvicorn worker pinned to CPU 0, load generator on CPU 1; Intel(R) Xeon(R) Processor @ 2.10GHz. Each client posts a batch of test encounters, waits for the scores and posts the next. Dollars per million encounters price one vCPU at $0.0446 an hour (half an AWS c7i.large on demand in us-east-1) and assume this throughput carries over to it, which I haven't measured.
+
+| Encounters per request | Clients | Requests/s | Encounters/s | p50 ms | p95 ms | p99 ms | Errors | Server RSS MB | $ per million encounters |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 1 | 71.7 | 72 | 13.3 | 18.7 | 21.4 | 0 | 179 | 0.1728 |
+| 1 | 2 | 73.8 | 74 | 26.1 | 34.9 | 42.1 | 0 | 179 | 0.1681 |
+| 1 | 4 | 78.5 | 78 | 50.3 | 70.6 | 83.3 | 0 | 180 | 0.1578 |
+| 1 | 8 | 75.2 | 75 | 104.8 | 153.7 | 180.4 | 0 | 180 | 0.1647 |
+| 100 | 1 | 5.1 | 514 | 191.0 | 218.8 | 233.0 | 0 | 181 | 0.0241 |
+| 100 | 2 | 5.2 | 520 | 381.4 | 418.8 | 436.3 | 0 | 181 | 0.0238 |
+| 100 | 4 | 5.1 | 511 | 778.7 | 850.0 | 876.0 | 0 | 182 | 0.0243 |
+| 100 | 8 | 5.1 | 510 | 1560.7 | 1709.4 | 1748.6 | 0 | 185 | 0.0243 |
