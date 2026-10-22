@@ -59,6 +59,19 @@ def vocabularies(train: pd.DataFrame, features: list[str]) -> dict[str, list[str
     return {c: sorted(train[c].astype(str).unique()) for c in features if c not in NUMERIC}
 
 
+def codes(df: pd.DataFrame, index: dict[str, dict[str, float]], features: list[str]) -> np.ndarray:
+    """The same input as ``frame`` as a float matrix: each category as its position in the
+    training vocabulary, NaN where ``frame`` has a missing value. LightGBM scores it exactly
+    as it scores the categorical frame, without pandas' per-call overhead."""
+    out = np.empty((len(df), len(features)), dtype=np.float64)
+    for j, col in enumerate(features):
+        if col in index:
+            out[:, j] = [index[col].get(v, np.nan) for v in df[col].astype(str)]
+        else:
+            out[:, j] = df[col].to_numpy(dtype=np.float64)
+    return out
+
+
 def frame(df: pd.DataFrame, categories: dict[str, list[str]], features: list[str]) -> pd.DataFrame:
     """Model input with fixed category codes; a value train never saw becomes missing."""
     x = df[features].copy()
@@ -78,6 +91,7 @@ class Booster:
                  features: list[str] = FEATURES):
         self.kind, self.model, self.categories, self.trees = kind, model, categories, trees
         self.features = list(features)
+        self.index = {c: {v: float(i) for i, v in enumerate(vocab)} for c, vocab in categories.items()}
 
     @classmethod
     def train(cls, kind: str, train: pd.DataFrame, valid: pd.DataFrame, params: dict | None = None,
@@ -101,9 +115,9 @@ class Booster:
         raise ValueError(f"unknown booster {kind!r}")
 
     def _predict(self, df: pd.DataFrame, **kw) -> np.ndarray:
-        x = frame(df, self.categories, self.features)
         if self.kind == "lightgbm":
-            return self.model.predict(x, num_iteration=self.trees, **kw)
+            return self.model.predict(codes(df, self.index, self.features), num_iteration=self.trees, **kw)
+        x = frame(df, self.categories, self.features)
         return self.model.predict(xgb.DMatrix(x, enable_categorical=True),
                                   iteration_range=(0, self.trees), **kw)
 
