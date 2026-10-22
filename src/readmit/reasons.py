@@ -6,9 +6,10 @@ prior year"). They explain the model's score, not the patient's risk factors: a 
 what moved this model, which can include a proxy (no payer recorded) that says nothing
 about care.
 
-The three ID columns get a description for their common codes and show the code otherwise.
-The descriptions are checked against the dataset's own IDs_mapping.csv, which comes in the
-UCI download, by tests/test_reasons.py.
+The three ID columns get a description for every code that shows up as a reason on the test
+call list more than a handful of times, and show the code otherwise. Every description is
+checked against the dataset's own IDs_mapping.csv, which comes in the UCI download, by
+tests/test_reasons.py in CI.
 """
 
 from __future__ import annotations
@@ -21,13 +22,18 @@ from .models import Booster
 TOP = 3
 
 ADMISSION_TYPE = {"1": "emergency admission", "2": "urgent admission", "3": "elective admission",
-                  "7": "trauma center admission"}
+                  "6": "no admission type recorded", "7": "trauma center admission"}
 ADMISSION_SOURCE = {"1": "admitted on physician referral", "2": "admitted on clinic referral",
                     "3": "admitted on HMO referral", "7": "admitted through the emergency room"}
 DISCHARGE = {"1": "discharged home", "2": "transferred to another short-term hospital",
              "3": "discharged to a skilled nursing facility",
+             "5": "transferred to another inpatient care facility",
              "6": "discharged home with home health service",
-             "22": "discharged to a rehab facility"}
+             "7": "left against medical advice",
+             "15": "moved to a swing bed in the same hospital",
+             "18": "no discharge disposition recorded",
+             "22": "discharged to a rehab facility",
+             "28": "transferred to a psychiatric hospital or unit"}
 
 
 def _plural(n: float, word: str, plural: str | None = None) -> str:

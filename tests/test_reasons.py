@@ -14,12 +14,15 @@ MAPPING = Path(__file__).resolve().parents[1] / "data" / D.MAPPING_NAME
 # A word each description must share with the dataset's own wording in IDs_mapping.csv.
 KEYWORDS = {
     ("admission_type_id", "1"): "emergency", ("admission_type_id", "2"): "urgent",
-    ("admission_type_id", "3"): "elective", ("admission_type_id", "7"): "trauma",
+    ("admission_type_id", "3"): "elective", ("admission_type_id", "6"): "null",
+    ("admission_type_id", "7"): "trauma",
     ("admission_source_id", "1"): "physician", ("admission_source_id", "2"): "clinic",
     ("admission_source_id", "3"): "hmo", ("admission_source_id", "7"): "emergency",
     ("discharge_disposition_id", "1"): "home", ("discharge_disposition_id", "2"): "short term",
-    ("discharge_disposition_id", "3"): "snf", ("discharge_disposition_id", "6"): "home health",
-    ("discharge_disposition_id", "22"): "rehab",
+    ("discharge_disposition_id", "3"): "snf", ("discharge_disposition_id", "5"): "inpatient care",
+    ("discharge_disposition_id", "6"): "home health", ("discharge_disposition_id", "7"): "ama",
+    ("discharge_disposition_id", "15"): "swing bed", ("discharge_disposition_id", "18"): "null",
+    ("discharge_disposition_id", "22"): "rehab", ("discharge_disposition_id", "28"): "psychiatric",
 }
 OURS = {"admission_type_id": ADMISSION_TYPE, "admission_source_id": ADMISSION_SOURCE,
         "discharge_disposition_id": DISCHARGE}
@@ -38,6 +41,11 @@ def read_mapping(path: Path) -> dict[tuple[str, str], str]:
             continue
         official[(column, row[0])] = row[1].lower() if len(row) > 1 else ""
     return official
+
+
+def test_every_description_we_show_is_checked_against_the_mapping():
+    shown = {(col, code) for col, table in OURS.items() for code in table}
+    assert shown == set(KEYWORDS)
 
 
 def test_descriptions_read_like_a_note():
