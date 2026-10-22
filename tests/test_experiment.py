@@ -43,6 +43,10 @@ def test_cli_records_the_command(tmp_path, monkeypatch):
                  "--out", str(tmp_path / "out")]) == 0
     meta = json.loads((tmp_path / "out" / "metrics.json").read_text())["meta"]
     assert meta["command"].startswith("readmit run --data-dir")
+    assert main(["export", "--data-dir", str(tmp_path), "--model-dir", str(tmp_path / "m"),
+                 "--results", str(tmp_path / "out"), "--out", str(tmp_path / "web")]) == 0
+    assert json.loads((tmp_path / "web" / "metrics.json").read_text())["meta"] == meta
+    assert len(json.loads((tmp_path / "web" / "call_list.json").read_text())) == 200
 
 
 def test_new_results_dont_make_the_checkout_dirty(tmp_path, monkeypatch):

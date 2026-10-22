@@ -86,7 +86,8 @@ def cmd_export(args: argparse.Namespace) -> int:
     from .experiment import prepare
     from .export import export
 
-    print(json.dumps(export(Path(args.model_dir), prepare(Path(args.data_dir))["test"], Path(args.out))))
+    print(json.dumps(export(Path(args.model_dir), prepare(Path(args.data_dir))["test"], Path(args.out),
+                            results_dir=Path(args.results) if args.results else None)))
     return 0
 
 
@@ -122,6 +123,8 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("export", help="files for the browser demo")
     p.add_argument("--data-dir", default="data")
     p.add_argument("--model-dir", default="artifacts")
+    p.add_argument("--results", default="results",
+                   help="copy metrics.json and load.json from here; '' to skip")
     p.add_argument("--out", default="build/web")
     p.set_defaults(func=cmd_export)
 

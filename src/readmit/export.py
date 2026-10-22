@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import base64
 import json
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -46,7 +47,11 @@ def pack_ranked_labels(y: np.ndarray, score: np.ndarray) -> str:
     return base64.b64encode(np.packbits(y[order].astype(np.uint8)).tobytes()).decode()
 
 
-def export(model_dir: Path, test: pd.DataFrame, out: Path, parity_rows: int = 2000) -> dict:
+def export(model_dir: Path, test: pd.DataFrame, out: Path, parity_rows: int = 2000,
+           results_dir: Path | None = None) -> dict:
+    """``results_dir``: copy its metrics.json and load.json next to the demo files, so a page
+    that prints this project's numbers reads them from the results files instead of retyping
+    them."""
     out = Path(out)
     out.mkdir(parents=True, exist_ok=True)
     model = Booster.load(model_dir)
@@ -89,5 +94,10 @@ def export(model_dir: Path, test: pd.DataFrame, out: Path, parity_rows: int = 20
     records = sample[model.features].to_dict(orient="records")
     (out / "parity.json").write_text(json.dumps({"rows": records, "raw": model.score(sample).tolist()},
                                                 default=float))
+    copied = []
+    for name in ("metrics.json", "load.json"):
+        if results_dir is not None and (Path(results_dir) / name).exists():
+            shutil.copyfile(Path(results_dir) / name, out / name)
+            copied.append(name)
     return {"trees": len(spec["trees"]), "model_kb": round((out / "model.json").stat().st_size / 1024, 1),
-            "call_list_rows": len(call_list), "parity_rows": len(records)}
+            "call_list_rows": len(call_list), "parity_rows": len(records), "results": copied}
