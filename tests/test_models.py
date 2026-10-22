@@ -58,3 +58,18 @@ def test_calibrator_round_trips_through_its_table():
     again = Calibrator.from_table(cal.table())
     probe = np.linspace(-3, 3, 50)
     np.testing.assert_allclose(again(probe), cal(probe))
+
+
+def test_lightgbm_scores_the_code_matrix_exactly_as_the_categorical_frame(parts):
+    from readmit.models import codes
+    from readmit.models import frame as model_frame
+
+    model = Booster.train("lightgbm", parts["train"], parts["valid"], rounds=40)
+    unseen = parts["test"].copy()
+    unseen.loc[unseen.index[:5], "medical_specialty"] = "a specialty train never saw"
+    for df in (parts["test"], unseen):
+        x = model_frame(df, model.categories, model.features)
+        assert np.array_equal(model.score(df), model.model.predict(x, raw_score=True))
+        assert np.array_equal(model.contributions(df), model.model.predict(x, pred_contrib=True))
+    column = model.features.index("medical_specialty")
+    assert np.isnan(codes(unseen, model.index, model.features)[:5, column]).all()
