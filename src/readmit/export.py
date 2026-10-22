@@ -4,9 +4,10 @@ reason codes.
 
 The capacity slider needs one thing per ranking: the test labels in score order. Packed one
 bit per encounter that's 2.5 KB a ranking, and recall at any capacity is a prefix sum.
-TreeSHAP is too slow to run per keystroke in a browser, so the call list's reasons are
-computed here. ``parity.json`` holds Python's raw scores for test rows, so web/test can
-check the JS tree walker against LightGBM itself.
+The call list's reasons are computed here with LightGBM's own TreeSHAP, so the demo shows
+exactly the reasons the service returns without a second implementation in JavaScript.
+``parity.json`` holds Python's raw scores for test rows, so web/test can check the JS tree
+walker against LightGBM itself.
 """
 
 from __future__ import annotations
