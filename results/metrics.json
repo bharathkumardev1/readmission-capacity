@@ -1,6 +1,6 @@
 {
  "meta": {
-  "git_sha": "9ea167a39942221f1c035e1074c78891ae61b2ff",
+  "git_sha": "d7a05c662e2c1e6853d9778c1c0926ff5a277783",
   "data_source": "https://raw.githubusercontent.com/fairlearn/talks/8e768c372afb03099757c8ba2c43cfc95a681598/2021_scipy_tutorial/data/diabetic_data.csv",
   "git_dirty": false,
   "command": "readmit run",
