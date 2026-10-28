@@ -39,6 +39,9 @@ def test_cli_records_the_command(tmp_path, monkeypatch):
 
     real = ex.run
     monkeypatch.setattr(ex, "run", lambda d, m, c: real(d, m, c, resamples=20))
+    # The browser export reads LightGBM trees, and which booster wins on 3,000 synthetic rows
+    # changes with library versions, so this test trains LightGBM only.
+    monkeypatch.setattr(ex, "BOOSTERS", {"LightGBM": "lightgbm"})
     assert main(["run", "--data-dir", str(tmp_path), "--model-dir", str(tmp_path / "m"),
                  "--out", str(tmp_path / "out")]) == 0
     meta = json.loads((tmp_path / "out" / "metrics.json").read_text())["meta"]
