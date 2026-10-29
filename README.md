@@ -4,6 +4,8 @@ A care team that can phone one in ten diabetic patients after discharge has to p
 
 The data is the UCI Diabetes 130-US hospitals extract, 101,766 encounters from 1999 to 2008. Everything below comes from one command, `readmit run`, which takes about two minutes on one core of a 2.1 GHz Xeon, and [results/RESULTS.md](results/RESULTS.md) has every table it writes.
 
+This project is separate from the readmission models I built at Cigna. That work used private data, different features and a different evaluation, so the AUROC here is not comparable to any figure from it.
+
 | Ranking of the test split | Readmissions on the 10% list (95% CI) | Precision of the list | AUROC (95% CI) | Brier |
 |---|---|---|---|---|
 | Prior inpatient stays | 20.5% (18.8 to 22.3) | 23.7% | 0.605 (0.591 to 0.618) | |
