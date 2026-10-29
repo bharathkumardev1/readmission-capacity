@@ -1,7 +1,8 @@
 # The versions the published results were computed with. `make lock` holds requirements.lock
-# to them, so the image scores with the same libraries that were evaluated.
-numpy==2.5.4
+# to them, so the image scores with the same libraries that were evaluated. numpy 2.5 and
+# xgboost-cpu 3.4 publish no Python 3.11 builds, so those two pins apply on 3.12 and later.
+numpy==2.5.4; python_version >= "3.12"
 pandas==3.0.6
 scikit-learn==1.9.1
 lightgbm==4.7.0
-xgboost-cpu==3.4.1
+xgboost-cpu==3.4.1; python_version >= "3.12"
