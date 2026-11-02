@@ -96,6 +96,7 @@ On every push, CI downloads the extract from UCI, retrains with the locked libra
 - Being on the list isn't being helped. This measures who a fixed number of calls would reach, not whether calling them prevents a readmission.
 - One in ten is an assumption about capacity. The browser demo lets you move it and watch the list change.
 - The commit IDs recorded in `results/metrics.json`, `results/load.json` and `results/RESULTS.md` were edited by hand to the signed commit IDs after the history was re-signed on 28 October (`16f4e57`). They were not written by the tool at those commits.
+- The re-signing on 28 October replaced the history, and this repository has no public backup tag of the earlier history. Dates on commits here are as recorded in the commits and are not attested by a third party.
 
 ## License
 
