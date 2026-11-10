@@ -72,12 +72,16 @@ export function roundHalfEven(x) {
 }
 
 // Readmissions reached when calling the top `share` of discharges, from labels packed in score order.
-export function capacityCurve(packed, n) {
+// ties: [start, length] of each block of tied scores. A cutoff inside a block gives every
+// encounter in it the same partial credit, as readmit's evaluate.at_capacity does.
+export function capacityCurve(packed, n, ties = []) {
   const bytes = Uint8Array.from(atob(packed), (c) => c.charCodeAt(0));
   const cum = new Uint32Array(n + 1);
   for (let i = 0; i < n; i++) cum[i + 1] = cum[i] + ((bytes[i >> 3] >> (7 - (i & 7))) & 1);
   return (share) => {
     const k = Math.min(n, Math.max(1, roundHalfEven(share * n)));
-    return { flagged: k, caught: cum[k], positives: cum[n] };
+    const run = ties.find(([s, len]) => s < k && k < s + len);
+    const caught = run ? cum[run[0]] + ((cum[run[0] + run[1]] - cum[run[0]]) * (k - run[0])) / run[1] : cum[k];
+    return { flagged: k, caught, positives: cum[n] };
   };
 }

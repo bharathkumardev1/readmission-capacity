@@ -43,8 +43,16 @@ def compact(node: dict):
 
 
 def pack_ranked_labels(y: np.ndarray, score: np.ndarray) -> str:
-    order = np.lexsort((np.arange(len(y)), -score))  # same order and ties as evaluate.at_capacity
+    order = np.lexsort((np.arange(len(y)), -score))
     return base64.b64encode(np.packbits(y[order].astype(np.uint8)).tobytes()).decode()
+
+
+def tie_runs(score: np.ndarray) -> list[list[int]]:
+    """[start, length] of every block of tied scores in the ranked order, so the browser can
+    give a cutoff inside a block the same partial credit as evaluate.at_capacity."""
+    s = np.sort(score)[::-1]
+    edges = np.flatnonzero(np.r_[True, s[1:] != s[:-1], True])
+    return [[int(a), int(b - a)] for a, b in zip(edges[:-1], edges[1:], strict=True) if b - a > 1]
 
 
 def export(model_dir: Path, test: pd.DataFrame, out: Path, parity_rows: int = 2000,
@@ -64,6 +72,7 @@ def export(model_dir: Path, test: pd.DataFrame, out: Path, parity_rows: int = 20
     names = {"prior_inpatient_stays": "prior inpatient stays", "LACE": "LACE",
              "logistic_regression": "logistic regression", "LightGBM": "LightGBM", "XGBoost": "XGBoost"}
     ranked = {label: pack_ranked_labels(y, z[key]) for key, label in names.items() if key in z}
+    ties = {label: tie_runs(z[key]) for key, label in names.items() if key in z}
 
     dump = model.model.dump_model(num_iteration=model.trees)
     calibration = json.loads((Path(model_dir) / "calibration.json").read_text())
@@ -76,7 +85,7 @@ def export(model_dir: Path, test: pd.DataFrame, out: Path, parity_rows: int = 20
             "call_threshold_raw": float(np.quantile(reference, 0.9))}  # top 10% of validation scores
     (out / "model.json").write_text(json.dumps(spec, separators=(",", ":")))
     (out / "capacity.json").write_text(json.dumps({"n": int(len(y)), "positives": int(y.sum()),
-                                                   "ranked_labels": ranked}))
+                                                   "ranked_labels": ranked, "ties": ties}))
 
     score = z["LightGBM"]
     order = np.lexsort((np.arange(len(y)), -score))[:LIST_ROWS]

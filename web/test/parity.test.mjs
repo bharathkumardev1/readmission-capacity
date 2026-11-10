@@ -36,7 +36,7 @@ test("capacity curves reproduce recall and precision in metrics.json", () => {
   const metrics = JSON.parse(readFileSync(join(results, "metrics.json"), "utf8")).test;
   assert.deepEqual(Object.keys(cap.ranked_labels).sort(), Object.keys(metrics).sort());
   for (const [name, packed] of Object.entries(cap.ranked_labels)) {
-    const at = capacityCurve(packed, cap.n);
+    const at = capacityCurve(packed, cap.n, cap.ties[name]);
     assert.equal(at(1).caught, cap.positives);
     for (const pct of [5, 10, 20]) {
       const want = metrics[name][`top${pct}`];

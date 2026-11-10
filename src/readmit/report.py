@@ -12,7 +12,7 @@ def _ci(ci: list[float], fmt: str = ".3f") -> str:
 def load_section(load: dict) -> list[str]:
     m = load["meta"]
     lines = ["## Load test\n",
-             f"`{m['command']}` at commit `{(m['git_sha'] or 'unknown')[:7]}`"
+             f"`{m['command']}` on source tree `{(m['git_tree'] or 'unknown')[:7]}`"
              f"{' with uncommitted changes' if m['git_dirty'] else ''} on {m['date']}: {m['server']}; "
              f"{m['cpu']}. Each client posts a batch of test encounters, waits for the scores and posts "
              f"the next. Dollars per million encounters price one vCPU at ${m['usd_per_vcpu_hour']:.4f} an "
@@ -33,7 +33,7 @@ def write_markdown(r: dict, path: Path, load: dict | None = None) -> None:
     te = m["splits"]["test"]
     lines = [
         "# Results\n",
-        f"`{m['command']}` at commit `{(m['git_sha'] or 'unknown')[:7]}`"
+        f"`{m['command']}` on source tree `{(m['git_tree'] or 'unknown')[:7]}`"
         f"{' with uncommitted changes' if m['git_dirty'] else ''} on {m['date']}: {m['cpu']}, "
         f"Python {m['python']}, LightGBM {m['lightgbm']}, XGBoost {m['xgboost']}, scikit-learn "
         f"{m['sklearn']}, pandas {m['pandas']}. {m['rows']['raw']:,} encounters, "

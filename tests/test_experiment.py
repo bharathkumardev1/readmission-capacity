@@ -71,3 +71,20 @@ def test_new_results_dont_make_the_checkout_dirty(tmp_path, monkeypatch):
     assert meta("readmit run")["git_dirty"] is False
     (tmp_path / "model.py").write_text("x = 2\n")
     assert meta("readmit run")["git_dirty"] is True
+
+
+def test_meta_records_the_source_tree(tmp_path, monkeypatch):
+    import subprocess
+
+    from readmit.experiment import meta
+
+    def git(*args):
+        return subprocess.run(["git", "-C", str(tmp_path), *args], check=True, capture_output=True,
+                              text=True).stdout.strip()
+
+    git("init", "-q")
+    (tmp_path / "model.py").write_text("x = 1\n")
+    git("add", ".")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "init")
+    monkeypatch.chdir(tmp_path)
+    assert meta("readmit run")["git_tree"] == git("rev-parse", "HEAD^{tree}")

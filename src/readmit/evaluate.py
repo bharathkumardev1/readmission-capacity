@@ -21,11 +21,22 @@ BOOTSTRAP = 2000
 
 
 def at_capacity(y: np.ndarray, score: np.ndarray, capacity: float) -> dict[str, float]:
-    """Flag the top ``capacity`` share of encounters by score (ties broken by position)."""
+    """Flag the top ``capacity`` share of encounters by score.
+
+    When the cutoff falls inside a block of tied scores (integer rules such as prior stays or
+    LACE tie heavily), every tied encounter gets the same partial credit: the share of the
+    block that fits on the list. That is the expected result of breaking the ties at random,
+    so the number doesn't depend on the order of the rows.
+    """
+    y = np.asarray(y)
+    score = np.asarray(score)
     n = len(y)
     k = max(1, int(round(capacity * n)))
-    order = np.lexsort((np.arange(n), -score))[:k]
-    caught = y[order].sum()
+    cut = np.sort(score)[::-1][k - 1]
+    above = score > cut
+    tied = score == cut
+    room = k - int(above.sum())
+    caught = float(y[above].sum()) + float(y[tied].sum()) * room / int(tied.sum())
     base = y.mean()
     precision = caught / k
     return {

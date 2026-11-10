@@ -65,7 +65,9 @@ def meta(command: str) -> dict:
     import sklearn
     import xgboost
 
-    return {"git_sha": git("rev-parse", "HEAD"),
+    # The tree ID names the exact source the run used and, unlike the commit ID, survives
+    # re-signing or rebasing: `git log --format="%h %T"` finds the commit that holds it.
+    return {"git_tree": git("rev-parse", "HEAD^{tree}"),
             "data_source": _data_source(),
             # Dirty means code or configs differ from the commit; results/ is where output goes.
             "git_dirty": bool(git("status", "--porcelain", "--untracked-files=no", "--", ".",

@@ -13,6 +13,18 @@ def test_capacity_metrics():
     assert r["lift"] == pytest.approx(0.5 / 0.3)
 
 
+def test_capacity_ties_get_equal_partial_credit():
+    # Four encounters tie at the cutoff and two of the four list places are left for them:
+    # each gets half credit, whatever order the rows are in.
+    y = np.array([1, 1, 0, 1, 0, 0, 0, 0, 0, 0])
+    s = np.array([5, 4, 4, 4, 4, 1, 1, 1, 1, 1])
+    r = E.at_capacity(y, s, 0.3)
+    assert r["flagged"] == 3
+    assert r["recall"] == pytest.approx((1 + 2 * 2 / 4) / 3)
+    perm = np.array([0, 3, 2, 1, 4, 5, 6, 7, 8, 9])
+    assert E.at_capacity(y[perm], s[perm], 0.3) == r
+
+
 def test_bootstrap_resamples_whole_patients():
     groups = np.array([1, 1, 2, 3, 3, 3])
     idx = E.cluster_indices(groups, np.random.default_rng(0))
