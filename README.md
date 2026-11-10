@@ -1,6 +1,6 @@
 # readmission-capacity
 
-A care team that can phone one in ten diabetic patients after discharge has to pick which ones. Ranked by LightGBM, that call list of 1,974 discharges holds 569 of the 2,279 test-split discharges that ended in a readmission within 30 days: 25.0% of them (95% CI 23.2 to 26.7). Calling whoever had the most inpatient stays in the prior year, the obvious rule without a model, holds 468 (20.5%), and the LACE index 361 (15.8%).
+A care team that can phone one in ten diabetic patients after discharge has to pick which ones. Ranked by LightGBM, that call list of 1,974 discharges holds 569 of the 2,279 test-split discharges that ended in a readmission within 30 days: 25.0% of them (95% CI 23.2 to 26.7). Calling whoever had the most inpatient stays in the prior year, the obvious rule without a model, holds 468 (20.6%), and the LACE index 349 (15.3%). Both rules give many patients the same score, so at the cutoff each tied patient counts for the share of the tie that fits on the list, which is what breaking the ties at random gives on average.
 
 The data is the UCI Diabetes 130-US hospitals extract, 101,766 encounters from 1999 to 2008. Everything below comes from one command, `readmit run`, which takes about two minutes on one core of a 2.1 GHz Xeon, and [results/RESULTS.md](results/RESULTS.md) has every table it writes.
 
@@ -8,13 +8,13 @@ This project is separate from the readmission models I built at Cigna. That work
 
 | Ranking of the test split | Readmissions on the 10% list (95% CI) | Precision of the list | AUROC (95% CI) | Brier |
 |---|---|---|---|---|
-| Prior inpatient stays | 20.5% (18.8 to 22.3) | 23.7% | 0.605 (0.591 to 0.618) | |
-| LACE | 15.8% (13.8 to 16.7) | 18.3% | 0.573 (0.559 to 0.585) | |
+| Prior inpatient stays | 20.6% (18.9 to 22.2) | 23.7% | 0.605 (0.591 to 0.618) | |
+| LACE | 15.3% (14.0 to 16.6) | 17.7% | 0.573 (0.559 to 0.585) | |
 | Logistic regression | 23.0% (21.1 to 24.7) | 26.5% | 0.662 (0.649 to 0.674) | 0.0979 |
 | LightGBM, shipped | 25.0% (23.2 to 26.7) | 28.8% | 0.673 (0.659 to 0.685) | 0.0969 |
 | XGBoost | 24.8% (23.1 to 26.6) | 28.7% | 0.672 (0.659 to 0.684) | 0.0968 |
 
-Intervals come from 2,000 bootstrap resamples over patients. Paired on the same resamples, LightGBM puts 4.4 points more of the readmissions on the list than the prior-stays rule (2.7 to 6.0), which is 101 more patients, and 2.1 points more than logistic regression (0.8 to 3.3). LightGBM and XGBoost tie, 0.2 points apart (-0.8 to 1.1). LightGBM ships because it was ahead on validation; the test split played no part in choosing it.
+Intervals come from 2,000 bootstrap resamples over patients. Paired on the same resamples, LightGBM puts 4.4 points more of the readmissions on the list than the prior-stays rule (2.9 to 5.9), which is 101 more patients, and 2.1 points more than logistic regression (0.8 to 3.3). LightGBM and XGBoost tie, 0.2 points apart (-0.8 to 1.1). LightGBM ships because it was ahead on validation; the test split played no part in choosing it.
 
 ## What goes in
 
@@ -67,7 +67,7 @@ curl -s localhost:8000/score -H 'content-type: application/json' \
   -d '{"encounters": [{"age": "[70-80)", "time_in_hospital": 9, "number_inpatient": 4}]}'
 ```
 
-In a closed-loop load test with one uvicorn worker on one core and the load generator on the other, the service scores one encounter per request at 71.7 requests a second for a single client (p50 13.3 ms, p95 18.7 ms) and tops out at 78.5 a second with four clients. In batches of 100 it scores about 515 encounters a second, most of that time going to exact TreeSHAP for the reasons. No request failed, and the server held 179 to 185 MB. Priced at half an AWS c7i.large on demand, that's $0.17 per million encounters scored one at a time and $0.024 per million in batches, assuming the throughput carries over to that vCPU, which I haven't measured. One encounter used to take 35 ms; most of it went to building a pandas frame for LightGBM twice per request, and a matrix of category codes gives it identical input at a fraction of the cost.
+In a closed-loop load test with one uvicorn worker on one core and the load generator on the other, the service scores one encounter per request at 55.9 requests a second for a single client (p50 16.7 ms, p95 23.3 ms) and tops out at 61.8 a second with two clients. In batches of 100 it scores about 425 encounters a second, most of that time going to exact TreeSHAP for the reasons. No request failed, and the server held 205 to 210 MB. Priced at half an AWS c7i.large on demand, that's $0.22 per million encounters scored one at a time and $0.029 per million in batches, assuming the throughput carries over to that vCPU, which I haven't measured. One encounter used to take 35 ms; most of it went to building a pandas frame for LightGBM twice per request, and a matrix of category codes gives it identical input at a fraction of the cost.
 
 ```bash
 docker build -t readmit .
@@ -86,7 +86,7 @@ make loadtest   # the service on one core, the load generator on the other
 make export     # trees, calibration, capacity curves and the call list for the browser demo
 ```
 
-On every push, CI downloads the extract from UCI, retrains with the locked libraries, and fails if AUROC, AUPRC or Brier score move by more than 0.002 or recall at 10% by more than 0.005 from the committed results. The same job checks the reason-code descriptions against IDs_mapping.csv and the browser's JavaScript scorer against the freshly trained model.
+On every push, CI downloads the extract from UCI, retrains with the locked libraries, and fails if any ranking's AUROC, AUPRC or Brier score moves by more than 0.002, or its recall at 10% by more than 0.005, from the committed results, the two rules included. The same job checks the reason-code descriptions against IDs_mapping.csv and the browser's JavaScript scorer against the freshly trained model.
 
 ## Limits
 
@@ -95,8 +95,7 @@ On every push, CI downloads the extract from UCI, retrains with the locked libra
 - A readmission to a hospital outside the 130 in the database doesn't show up in the label.
 - Being on the list isn't being helped. This measures who a fixed number of calls would reach, not whether calling them prevents a readmission.
 - One in ten is an assumption about capacity. The browser demo lets you move it and watch the list change.
-- The commit IDs recorded in `results/metrics.json`, `results/load.json` and `results/RESULTS.md` were edited by hand to the signed commit IDs after the history was re-signed on 28 October (`16f4e57`). They were not written by the tool at those commits.
-- The re-signing on 28 October replaced the history, and this repository has no public backup tag of the earlier history. Dates on commits here are as recorded in the commits and are not attested by a third party.
+- The results files record the git tree ID of the source each run used, which re-signing doesn't change; `git log --format='%h %T'` shows the commit that holds it. I re-signed this repository's history on 28 October 2026.
 
 ## License
 

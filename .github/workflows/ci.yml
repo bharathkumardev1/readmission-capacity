@@ -47,9 +47,11 @@ jobs:
           new = json.load(open("ci-results/metrics.json"))
           old = json.load(open("results/metrics.json"))
           assert new["shipped"]["model"] == old["shipped"]["model"], (new["shipped"], old["shipped"])
-          for name in ("LightGBM", "XGBoost", "logistic regression"):
+          for name in ("LightGBM", "XGBoost", "logistic regression", "prior inpatient stays", "LACE"):
               a, b = new["test"][name], old["test"][name]
               for k in ("auroc", "auprc", "brier"):
+                  if k not in b:  # the two rules give ranks, not probabilities
+                      continue
                   assert abs(a[k] - b[k]) < 0.002, (name, k, a[k], b[k])
               assert abs(a["top10"]["recall"] - b["top10"]["recall"]) < 0.005, name
           print("reproduced:", {k: round(new["test"]["LightGBM"][k], 4) for k in ("auroc", "auprc", "brier")})

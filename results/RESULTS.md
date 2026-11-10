@@ -1,6 +1,6 @@
 # Results
 
-`readmit run` at commit `d7a05c6` on 2026-10-21: Intel(R) Xeon(R) Processor @ 2.10GHz, Python 3.13.16, LightGBM 4.7.0, XGBoost 3.4.1, scikit-learn 1.9.1, pandas 3.0.6. 101,766 encounters, 2,423 dropped for death or hospice discharge. Test split: 19,745 encounters from 13,908 patients, 11.5% back within 30 days. Intervals: 2,000 bootstrap resamples over patients.
+`readmit run` on source tree `a5a9837` on 2026-11-10: Intel(R) Xeon(R) Processor @ 2.10GHz, Python 3.13.16, LightGBM 4.7.0, XGBoost 3.4.1, scikit-learn 1.9.1, pandas 3.0.6. 101,766 encounters, 2,423 dropped for death or hospice discharge. Test split: 19,745 encounters from 13,908 patients, 11.5% back within 30 days. Intervals: 2,000 bootstrap resamples over patients.
 
 Shipped model, picked on validation by recall at 10% and then AUROC: **LightGBM**.
 
@@ -8,8 +8,8 @@ Shipped model, picked on validation by recall at 10% and then AUROC: **LightGBM*
 
 | Ranking | AUROC (95% CI) | AUPRC | Recall at 5% | Recall at 10% (95% CI) | Precision at 10% | Recall at 20% | Brier |
 |---|---|---|---|---|---|---|---|
-| prior inpatient stays | 0.605 (0.591 to 0.618) | 0.175 | 0.125 | 0.205 (0.188 to 0.223) | 0.237 | 0.345 |  |
-| LACE | 0.573 (0.559 to 0.585) | 0.144 | 0.078 | 0.158 (0.138 to 0.167) | 0.183 | 0.281 |  |
+| prior inpatient stays | 0.605 (0.591 to 0.618) | 0.175 | 0.125 | 0.206 (0.189 to 0.222) | 0.237 | 0.337 |  |
+| LACE | 0.573 (0.559 to 0.585) | 0.144 | 0.080 | 0.153 (0.140 to 0.166) | 0.177 | 0.281 |  |
 | logistic regression | 0.662 (0.649 to 0.674) | 0.218 | 0.135 | 0.230 (0.211 to 0.247) | 0.265 | 0.381 | 0.0979 |
 | LightGBM | 0.673 (0.659 to 0.685) | 0.237 | 0.147 | 0.250 (0.232 to 0.267) | 0.288 | 0.402 | 0.0969 |
 | XGBoost | 0.672 (0.659 to 0.684) | 0.239 | 0.144 | 0.248 (0.231 to 0.266) | 0.287 | 0.398 | 0.0968 |
@@ -19,19 +19,19 @@ Shipped model, picked on validation by recall at 10% and then AUROC: **LightGBM*
 | Comparison | Mean | 95% CI |
 |---|---|---|
 | prior inpatient stays - LACE auroc | +0.032 | +0.015 to +0.048 |
-| prior inpatient stays - LACE recall@10 | +0.053 | +0.033 to +0.072 |
+| prior inpatient stays - LACE recall@10 | +0.053 | +0.035 to +0.071 |
 | prior inpatient stays - logistic regression auroc | -0.057 | -0.069 to -0.046 |
-| prior inpatient stays - logistic regression recall@10 | -0.023 | -0.038 to -0.008 |
+| prior inpatient stays - logistic regression recall@10 | -0.023 | -0.037 to -0.010 |
 | prior inpatient stays - LightGBM auroc | -0.068 | -0.079 to -0.057 |
-| prior inpatient stays - LightGBM recall@10 | -0.044 | -0.060 to -0.027 |
+| prior inpatient stays - LightGBM recall@10 | -0.044 | -0.059 to -0.029 |
 | prior inpatient stays - XGBoost auroc | -0.068 | -0.078 to -0.057 |
-| prior inpatient stays - XGBoost recall@10 | -0.042 | -0.059 to -0.027 |
+| prior inpatient stays - XGBoost recall@10 | -0.042 | -0.057 to -0.028 |
 | LACE - logistic regression auroc | -0.090 | -0.104 to -0.075 |
-| LACE - logistic regression recall@10 | -0.076 | -0.095 to -0.056 |
+| LACE - logistic regression recall@10 | -0.076 | -0.094 to -0.057 |
 | LACE - LightGBM auroc | -0.100 | -0.116 to -0.086 |
-| LACE - LightGBM recall@10 | -0.097 | -0.117 to -0.077 |
+| LACE - LightGBM recall@10 | -0.097 | -0.116 to -0.078 |
 | LACE - XGBoost auroc | -0.100 | -0.115 to -0.086 |
-| LACE - XGBoost recall@10 | -0.095 | -0.115 to -0.075 |
+| LACE - XGBoost recall@10 | -0.095 | -0.114 to -0.076 |
 | logistic regression - LightGBM auroc | -0.011 | -0.016 to -0.005 |
 | logistic regression - LightGBM recall@10 | -0.021 | -0.033 to -0.008 |
 | logistic regression - XGBoost auroc | -0.010 | -0.015 to -0.005 |
@@ -149,19 +149,19 @@ PSI by input for each shift:
 | class-weighted training (is_unbalance) | 0.672 | 0.245 | 19,745 |
 | race and gender as features | 0.673 | 0.247 | 19,745 |
 
-Early stopping on validation AUC: LightGBM 287 trees, XGBoost 175 trees. Fit time on one thread: logistic regression 0.9 s, LightGBM 4.4 s, XGBoost 4.5 s. The whole run took 128 s.
+Early stopping on validation AUC: LightGBM 287 trees, XGBoost 175 trees. Fit time on one thread: logistic regression 0.8 s, LightGBM 5.2 s, XGBoost 4.9 s. The whole run took 137 s.
 
 ## Load test
 
-`readmit loadtest --batches 1,100 --levels 1,2,4,8 --seconds 30 --server-note '1 uvicorn worker pinned to CPU 0, load generator on CPU 1'` at commit `d7a05c6` on 2026-10-21: 1 uvicorn worker pinned to CPU 0, load generator on CPU 1; Intel(R) Xeon(R) Processor @ 2.10GHz. Each client posts a batch of test encounters, waits for the scores and posts the next. Dollars per million encounters price one vCPU at $0.0446 an hour (half an AWS c7i.large on demand in us-east-1) and assume this throughput carries over to it, which I haven't measured.
+`readmit loadtest --batches 1,100 --levels 1,2,4,8 --seconds 30 --server-note '1 uvicorn worker pinned to CPU 0, load generator on CPU 1'` on source tree `a5a9837` on 2026-11-10: 1 uvicorn worker pinned to CPU 0, load generator on CPU 1; Intel(R) Xeon(R) Processor @ 2.10GHz. Each client posts a batch of test encounters, waits for the scores and posts the next. Dollars per million encounters price one vCPU at $0.0446 an hour (half an AWS c7i.large on demand in us-east-1) and assume this throughput carries over to it, which I haven't measured.
 
 | Encounters per request | Clients | Requests/s | Encounters/s | p50 ms | p95 ms | p99 ms | Errors | Server RSS MB | $ per million encounters |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | 1 | 71.7 | 72 | 13.3 | 18.7 | 21.4 | 0 | 179 | 0.1728 |
-| 1 | 2 | 73.8 | 74 | 26.1 | 34.9 | 42.1 | 0 | 179 | 0.1681 |
-| 1 | 4 | 78.5 | 78 | 50.3 | 70.6 | 83.3 | 0 | 180 | 0.1578 |
-| 1 | 8 | 75.2 | 75 | 104.8 | 153.7 | 180.4 | 0 | 180 | 0.1647 |
-| 100 | 1 | 5.1 | 514 | 191.0 | 218.8 | 233.0 | 0 | 181 | 0.0241 |
-| 100 | 2 | 5.2 | 520 | 381.4 | 418.8 | 436.3 | 0 | 181 | 0.0238 |
-| 100 | 4 | 5.1 | 511 | 778.7 | 850.0 | 876.0 | 0 | 182 | 0.0243 |
-| 100 | 8 | 5.1 | 510 | 1560.7 | 1709.4 | 1748.6 | 0 | 185 | 0.0243 |
+| 1 | 1 | 55.9 | 56 | 16.7 | 23.3 | 26.9 | 0 | 204 | 0.2218 |
+| 1 | 2 | 61.8 | 62 | 31.1 | 43.2 | 50.1 | 0 | 205 | 0.2006 |
+| 1 | 4 | 59.6 | 60 | 65.0 | 94.9 | 110.8 | 0 | 205 | 0.2080 |
+| 1 | 8 | 59.9 | 60 | 127.4 | 197.2 | 239.8 | 0 | 206 | 0.2070 |
+| 100 | 1 | 4.2 | 420 | 231.4 | 301.0 | 309.6 | 0 | 206 | 0.0295 |
+| 100 | 2 | 4.3 | 432 | 454.5 | 542.4 | 553.1 | 0 | 206 | 0.0287 |
+| 100 | 4 | 4.3 | 433 | 916.2 | 985.5 | 997.6 | 0 | 207 | 0.0286 |
+| 100 | 8 | 4.2 | 421 | 1886.7 | 2085.3 | 2257.4 | 0 | 210 | 0.0294 |
