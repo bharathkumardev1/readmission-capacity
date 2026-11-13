@@ -2,6 +2,8 @@
 
 A care team that can phone one in ten diabetic patients after discharge has to pick which ones. Ranked by LightGBM, that call list of 1,974 discharges holds 569 of the 2,279 test-split discharges that ended in a readmission within 30 days: 25.0% of them (95% CI 23.2 to 26.7). Calling whoever had the most inpatient stays in the prior year, the obvious rule without a model, holds 468 (20.6%), and the LACE index 349 (15.3%). Both rules give many patients the same score, so at the cutoff each tied patient counts for the share of the tie that fits on the list, which is what breaking the ties at random gives on average.
 
+**Demo:** the [call planner](https://bharathkumardev1.github.io/projects/readmission-capacity/) runs the trained LightGBM trees in your browser, with the held-out capacity curves and the reasons behind each call; move the capacity and the list changes.
+
 The data is the UCI Diabetes 130-US hospitals extract, 101,766 encounters from 1999 to 2008. Everything below comes from one command, `readmit run`, which takes about two minutes on one core of a 2.1 GHz Xeon, and [results/RESULTS.md](results/RESULTS.md) has every table it writes.
 
 This project is separate from the readmission models I built at Cigna. That work used private data, different features and a different evaluation, so the AUROC here is not comparable to any figure from it.
